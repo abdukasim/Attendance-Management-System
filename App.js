@@ -1,20 +1,29 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import LoginScreen from "./src/screens/LoginScreen";
+import AdminTabs from "./src/screens/AdminTabs";
+import RegistrationTabs from "./src/screens/Registration/RegistrationTabs";
+import AttendanceScreen from "./src/screens/AttendanceScreen";
+import BoardScreen from "./src/screens/BoardScreen";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-export default function App() {
+const Stack = createNativeStackNavigator();
+
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="ADMIN" component={AdminTabs} />
+        <Stack.Screen name="REG_OFF" component={RegistrationTabs} />
+        <Stack.Screen name="AttOfficer" component={AttendanceScreen} />
+        <Stack.Screen name="Board" component={BoardScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
