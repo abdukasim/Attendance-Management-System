@@ -1,4 +1,3 @@
-// import axios from "axios";
 import React from "react";
 import { Colors } from "../../components/styles";
 import { NavigationContainer } from "@react-navigation/native";

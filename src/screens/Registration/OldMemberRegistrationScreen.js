@@ -12,12 +12,12 @@ import {
 import { FieldArray, Formik } from "formik";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import CustomTextInput from "../../components/CustomTextInput";
-import axios from "axios";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import RadioForm from "react-native-simple-radio-button";
+import url from "../../helpers/url";
 
 // import { View, Text } from "react-native";
 
@@ -58,11 +58,8 @@ const OldMemberRegistrationScreen = () => {
 
   const handleRegistration = (credentials, setSubmitting) => {
     handleMessage(null);
-    let url = "https://muntaha.herokuapp.com";
-    url += "/api/waiting-list";
-
-    axios
-      .post(url, credentials)
+    url
+      .post("/api/waiting-list", credentials)
       .then((res) => {
         if (res.status === 200) {
           handleMessage("Successfully registered", "SUCCESS");

@@ -12,9 +12,9 @@ import {
 import { Formik } from "formik";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import CustomTextInput from "../../components/CustomTextInput";
-import axios from "axios";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import url from "../../helpers/url";
 
 const { darkLight, primary, secondary, tertiary } = Colors;
 
@@ -31,11 +31,8 @@ const NewMemberRegistrationScreen = () => {
 
   const handleRegistration = (credentials, setSubmitting) => {
     handleMessage(null);
-    let url = "https://muntaha.herokuapp.com";
-    url += "/api/waiting-list";
-
-    axios
-      .post(url, credentials)
+    url
+      .post("/api/attendance/registration/new", credentials)
       .then((res) => {
         if (res.status === 200) {
           handleMessage("Successfully registered", "SUCCESS");

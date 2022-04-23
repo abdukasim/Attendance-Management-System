@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useState } from "react";
 import {
   InnerContainer,
@@ -15,6 +14,7 @@ import {
 import { Formik } from "formik";
 import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
 import CustomTextInput from "../components/CustomTextInput";
+import url from "../helpers/url";
 import { ActivityIndicator } from "react-native";
 
 const { primary, darkLight } = Colors;
@@ -27,18 +27,13 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = (credentials, setSubmitting) => {
     setErrorMsg(null);
-    let url = "https://muntaha.herokuapp.com";
-    url += "/api/session";
-
-    axios
-      .post(url, credentials)
+    url
+      .post("/api/session", credentials)
       .then((res) => {
         if (res.status == 200) navigation.navigate(res.data.type);
-        console.log(res.status);
         setSubmitting(false);
       })
       .catch((err) => {
-        // return console.log(err.message);
         if (!err.response) {
           setErrorMsg(err.message);
         } else setErrorMsg(err.response.data.description);
