@@ -128,7 +128,7 @@ export const StyledPicker = styled.Picker`
 
 export const StyledModal = styled.View`
   width: 250px;
-  padding-top: 10px;
+  height: auto;
   background-color: ${primary};
 `;
 
