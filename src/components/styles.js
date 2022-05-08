@@ -60,6 +60,16 @@ export const StyledTextInput = styled.TextInput`
   margin-bottom: 10px;
   color: ${tertiary};
 `;
+export const StyledTextDisplay = styled.TextInput`
+  background-color: ${secondary};
+  padding: 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  height: 60px;
+  margin-vertical: 3px;
+  margin-bottom: 10px;
+  color: ${tertiary};
+`;
 export const StyledInputLabel = styled.Text`
   color: ${tertiary};
   font-size: 13px;
@@ -114,4 +124,32 @@ export const StyledPicker = styled.Picker`
   margin-vertical: 3px;
   margin-bottom: 10px;
   color: ${tertiary};
+`;
+
+export const StyledModal = styled.View`
+  width: 250px;
+  padding-top: 10px;
+  background-color: ${primary};
+`;
+
+export const AttendanceModal = styled.View`
+  width: auto;
+  height: auto;
+  padding-top: 10px;
+  background-color: ${primary};
+`;
+
+export const ButtonWrapper = styled.View`
+  display: flex;
+  justify-content: space-around;
+  padding: 1px;
+`;
+export const Button = styled.TouchableOpacity`
+  border-width: 1px;
+  border-radius: 4px;
+  padding: 10px;
+  align-items: center;
+  border-color: ${secondary};
+  margin: 5px;
+  background-color: ${(props) => (props.color ? props.color : secondary)};
 `;
