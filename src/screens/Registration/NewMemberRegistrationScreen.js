@@ -122,6 +122,7 @@ const NewMemberRegistrationScreen = () => {
                   }}
                   style={styles.pickerStyle}
                 >
+                  <Picker.Item label="" value="" />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>
