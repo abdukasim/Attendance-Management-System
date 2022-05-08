@@ -10,6 +10,7 @@ import {
   ButtonText,
   StyledInputLabel,
   StyledTextDisplay,
+  MsgBox,
 } from "../../components/styles";
 import url from "../../helpers/url";
 
@@ -17,6 +18,8 @@ export default function VisitedListScreen({ visitedListFunc }) {
   const [inVisitedList, setInVisitedList] = useState();
   const [visitedUser, setVisitedUser] = useState({});
   const [visible, setVisible] = useState(false);
+  const [message, setMessage] = useState("");
+  const [msgType, setMsgType] = useState("");
 
   const toggleOverlay = () => {
     setVisible(!visible);
@@ -41,10 +44,16 @@ export default function VisitedListScreen({ visitedListFunc }) {
         id: id,
       });
       console.log(res.data);
-      fetchVisitedList();
-      toggleOverlay();
+      setMsgType("SUCCESS");
+      setMessage("Added to Attendance Successfully!");
+      setTimeout(() => {
+        toggleOverlay();
+        fetchVisitedList();
+      }, 1000);
     } catch (error) {
-      console.log(error);
+      console.error(error.response.data.description);
+      setMsgType("ERROR");
+      setMessage("Status Change Failed!");
     }
   };
 
@@ -100,11 +109,14 @@ export default function VisitedListScreen({ visitedListFunc }) {
       />
       <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
         <StyledModal>
-          <SubTitle>{visitedUser.name}</SubTitle>
-          <ScrollView>{renderDetails(visitedUser)}</ScrollView>
-          <StyledButton onPress={() => addToAttendance(visitedUser.id)}>
-            <ButtonText>Accept</ButtonText>
-          </StyledButton>
+          <ScrollView>
+            <SubTitle>{visitedUser.name}</SubTitle>
+            {renderDetails(visitedUser)}
+            <MsgBox type={msgType}>{message}</MsgBox>
+            <StyledButton onPress={() => addToAttendance(visitedUser.id)}>
+              <ButtonText>Accept</ButtonText>
+            </StyledButton>
+          </ScrollView>
         </StyledModal>
       </Overlay>
     </View>
