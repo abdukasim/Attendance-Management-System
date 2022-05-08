@@ -49,16 +49,12 @@ export default function AdminTabs() {
         <Tab.Screen
           name="Waiting"
           options={{ headerTitle: "Waiting List" }}
-          children={() => (
-            <WaitingListScreen waitingListFunc={waitingListFunc} />
-          )}
+          children={() => <WaitingListScreen />}
         />
         <Tab.Screen
           name="Visited"
           options={{ headerTitle: "Visited List" }}
-          children={() => (
-            <VisitedListScreen visitedListFunc={visitedListFunc} />
-          )}
+          children={() => <VisitedListScreen />}
         />
         <Tab.Screen name="Attendance" component={AttendanceScreen} />
         <Tab.Screen name="Reports" component={ReportsScreen} />
