@@ -59,14 +59,17 @@ const OldMemberRegistrationScreen = () => {
   const handleRegistration = (credentials, setSubmitting) => {
     handleMessage(null);
     url
-      .post("/api/waiting-list", credentials)
+      .post("/api/attendance/client/old-timer", credentials)
       .then((res) => {
         if (res.status === 200) {
           handleMessage("Successfully registered", "SUCCESS");
           setSubmitting(false);
         }
       })
-      .catch();
+      .catch((err) => {
+        console.log("error: ", err.response.data.description);
+        setSubmitting(false);
+      });
   };
 
   return (
@@ -84,14 +87,15 @@ const OldMemberRegistrationScreen = () => {
             />
           )}
           <Formik
+            // enableReinitialize
             initialValues={{
               name: "",
               birthday: "",
               sex: "",
               maritalStatus: "",
               spouse: "",
-              children: [{ name: "", schooling: "" }],
-              job: "",
+              children: [{ name: "", age: "", schooling: "" }],
+              jobStatus: "",
               rent: "",
               address: "",
               phone: "",
@@ -109,6 +113,7 @@ const OldMemberRegistrationScreen = () => {
                 handleMessage("Please fill all the fields");
                 setSubmitting(false);
               } else {
+                console.log(values);
                 handleRegistration(values, setSubmitting);
                 values.name = null;
                 values.birthday = null;
@@ -116,7 +121,7 @@ const OldMemberRegistrationScreen = () => {
                 values.maritalStatus = null;
                 values.spouse = null;
                 values.children = null;
-                values.job = null;
+                values.jobStatus = null;
                 values.rent = null;
                 values.address = null;
                 values.phone = null;
@@ -169,6 +174,7 @@ const OldMemberRegistrationScreen = () => {
                   }}
                   style={styles.pickerStyle}
                 >
+                  <Picker.Item label="" value="" />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>
@@ -186,6 +192,7 @@ const OldMemberRegistrationScreen = () => {
                   }}
                   style={styles.pickerStyle}
                 >
+                  <Picker.Item label="" value="" />
                   <Picker.Item label="Divorced" value="Divorced" />
                   <Picker.Item label="Married" value="Married" />
                   <Picker.Item label="Widowed" value="Widowed" />
@@ -216,7 +223,6 @@ const OldMemberRegistrationScreen = () => {
                   animation={true}
                   onPress={(value) => {
                     setRadioButton(value);
-                    values.children = [{ name: "", schooling: "" }];
                   }}
                   style={{ marginVertical: 5 }}
                 />
@@ -225,6 +231,7 @@ const OldMemberRegistrationScreen = () => {
                   <FieldArray name="children">
                     {({ insert, remove, push }) => (
                       <View>
+                        {console.log(values.children)}
                         {values.children.length > 0 &&
                           values.children.map((child, index) => (
                             <View key={index}>
@@ -234,7 +241,16 @@ const OldMemberRegistrationScreen = () => {
                                 icon="child"
                                 placeholder="children"
                                 placeholderTextColor={darkLight}
-                                onChangeText={handleChange("children")}
+                                // onChangeText={handleChange("children")}
+                                // onBlur={handleBlur}
+                              />
+                              <CustomTextInput
+                                label="Child Age"
+                                name={`children.${index}.age`}
+                                icon="child"
+                                placeholder="children"
+                                placeholderTextColor={darkLight}
+                                // onChangeText={handleChange("children")}
                                 // onBlur={handleBlur}
                               />
                               <CustomTextInput
@@ -243,7 +259,7 @@ const OldMemberRegistrationScreen = () => {
                                 icon="child"
                                 placeholder="children"
                                 placeholderTextColor={darkLight}
-                                onChangeText={handleChange("children")}
+                                // onChangeText={handleChange("children")}
                                 // onBlur={handleBlur}
                               />
                               <View style={styles.childrenButton}>
@@ -267,13 +283,13 @@ const OldMemberRegistrationScreen = () => {
 
                 <CustomTextInput
                   label="Job"
-                  name="job"
+                  name="jobStatus"
                   icon="briefcase"
-                  placeholder="job"
+                  placeholder="jobStatus"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("job")}
+                  onChangeText={handleChange("jobStatus")}
                   // onBlur={handleBlur}
-                  value={values.job}
+                  value={values.jobStatus}
                 />
 
                 <CustomTextInput
@@ -313,12 +329,12 @@ const OldMemberRegistrationScreen = () => {
                 <StyledInputLabel>Health Status</StyledInputLabel>
                 <Picker
                   prompt={"Health Status"}
-                  selectedValue={values.healthStatus}
+                  selectedValue={values.health}
                   onValueChange={(itemValue, itemIndex) => {
                     // setSelectedSex(itemValue);
                     setHealthStatus(itemValue);
                     // console.log(marital);
-                    setFieldValue("healthStatus", itemValue);
+                    setFieldValue("health", itemValue);
                     // console.log(itemValue);
                   }}
                   style={styles.pickerStyle}
