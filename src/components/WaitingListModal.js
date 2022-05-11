@@ -263,7 +263,7 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
               // onBlur={handleBlur}
               value={values.remark}
             />
-            <MsgBox type={msgType}>{msg}</MsgBox>
+            <MsgBox type={msgType}>{message}</MsgBox>
             {!isSubmitting && (
               <StyledButton onPress={handleSubmit}>
                 <ButtonText>Register</ButtonText>
