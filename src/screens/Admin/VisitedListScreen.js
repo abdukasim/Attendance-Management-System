@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { Overlay } from "react-native-elements";
 import CustomList from "../../components/CustomList";
 import CustomTextInput from "../../components/CustomTextInput";
@@ -38,6 +39,12 @@ export default function VisitedListScreen({ visitedListFunc }) {
     fetchVisitedList();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchVisitedList();
+    }, [])
+  );
+
   const addToAttendance = async (id) => {
     try {
       const res = await url.post("/api/attendance/registration/accept", {
@@ -49,6 +56,8 @@ export default function VisitedListScreen({ visitedListFunc }) {
       setTimeout(() => {
         toggleOverlay();
         fetchVisitedList();
+        setMessage("");
+        setMsgType("");
       }, 1000);
     } catch (error) {
       console.error(error.response.data.description);

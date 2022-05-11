@@ -5,6 +5,7 @@ import { Overlay } from "react-native-elements";
 import url from "../../helpers/url";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import WaitingListModal from "../../components/WaitingListModal";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function WaitingListScreen({ waitingListFunc }) {
   const [inWaitingList, setInWaitingList] = useState([]);
@@ -30,6 +31,12 @@ export default function WaitingListScreen({ waitingListFunc }) {
   useEffect(() => {
     fetchWaitingList();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchWaitingList();
+    }, [])
+  );
 
   return (
     <View>

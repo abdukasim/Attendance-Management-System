@@ -4,6 +4,7 @@ import CustomList from "../components/CustomList";
 import { Overlay } from "react-native-elements";
 import url from "../helpers/url";
 import AttendanceListModal from "../components/AttendanceListModal";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function AttendanceScreen() {
   const [inAttendanceList, setInAttendanceList] = useState([]);
@@ -29,6 +30,12 @@ export default function AttendanceScreen() {
   useEffect(() => {
     fetchAttendanceList();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchAttendanceList();
+    }, [])
+  );
 
   return (
     <View>
