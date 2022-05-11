@@ -80,18 +80,8 @@ export default function AttendanceListModal({
       <SubTitle>{name}</SubTitle>
       <SubTitle>{id}</SubTitle>
 
-      {dayStatus.present === true && (
-        <MsgBox>
-          {" "}
-          <Text>Present</Text>{" "}
-        </MsgBox>
-      )}
-      {dayStatus.reason?.excused === true && (
-        <MsgBox>
-          {" "}
-          <Text>Permission</Text>{" "}
-        </MsgBox>
-      )}
+      {dayStatus.present === true && <MsgBox>Present</MsgBox>}
+      {dayStatus.reason?.excused === true && <MsgBox>Permission</MsgBox>}
       <ButtonWrapper>
         <Button
           color={green}
@@ -100,9 +90,6 @@ export default function AttendanceListModal({
           }}
         >
           <ButtonText>Present</ButtonText>
-        </Button>
-        <Button color={red}>
-          <ButtonText>Absent</ButtonText>
         </Button>
         <Button
           color={brand}
