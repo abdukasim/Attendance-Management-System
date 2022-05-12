@@ -151,5 +151,5 @@ export const Button = styled.TouchableOpacity`
   align-items: center;
   border-color: ${secondary};
   margin: 5px;
-  background-color: ${(props) => (props.color ? props.color : secondary)};
+  background-color: ${(props) => (props.disabled ? secondary : props.color)};
 `;
