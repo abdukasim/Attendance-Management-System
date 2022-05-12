@@ -6,7 +6,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Colors } from "../../components/styles";
 import WaitingListScreen from "./WaitingListScreen";
 import VisitedListScreen from "./VisitedListScreen";
-import AttendanceScreen from "../AttendanceScreen";
+import AttendanceScreen from "../Attendance/AttendanceScreen";
 
 const { brand, tertiary } = Colors;
 
@@ -46,6 +46,7 @@ export default function AdminTabs() {
           tabBarInactiveTintColor: tertiary,
         })}
       >
+        <Tab.Screen name="Attendance" component={AttendanceScreen} />
         <Tab.Screen
           name="Waiting"
           options={{ headerTitle: "Waiting List" }}
@@ -56,7 +57,6 @@ export default function AdminTabs() {
           options={{ headerTitle: "Visited List" }}
           children={() => <VisitedListScreen />}
         />
-        <Tab.Screen name="Attendance" component={AttendanceScreen} />
         <Tab.Screen name="Reports" component={ReportsScreen} />
       </Tab.Navigator>
     </NavigationContainer>
