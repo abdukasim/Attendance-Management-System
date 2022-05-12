@@ -25,6 +25,7 @@ export default function AttendanceListModal({
   const [permission, setPermission] = useState(false);
   const [message, setMessage] = useState("");
   const [msgType, setMsgType] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePresentAttendance = async (status) => {
     try {
@@ -38,11 +39,13 @@ export default function AttendanceListModal({
       setTimeout(() => {
         toggleOverlay();
         fetchAttendanceList();
+        setIsLoading(false);
       }, 1000);
     } catch (error) {
       console.error(error.response.data.description);
       setMsgType("ERROR");
       setMessage("Status Change Failed!");
+      setIsLoading(false);
     }
   };
   const handlePermissionAttendance = async (status) => {
@@ -57,11 +60,13 @@ export default function AttendanceListModal({
       setTimeout(() => {
         toggleOverlay();
         fetchAttendanceList();
+        setIsLoading(false);
       }, 1000);
     } catch (error) {
       console.error(error.response.data.description);
       setMsgType("ERROR");
       setMessage("Status Change Failed!");
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -87,7 +92,15 @@ export default function AttendanceListModal({
           color={green}
           onPress={() => {
             setPresent(true);
+            setIsLoading(true);
           }}
+          disabled={
+            dayStatus.present === true ||
+            isLoading === true ||
+            dayStatus.reason?.excused === true
+              ? true
+              : false
+          }
         >
           <ButtonText>Present</ButtonText>
         </Button>
@@ -95,7 +108,15 @@ export default function AttendanceListModal({
           color={brand}
           onPress={() => {
             setPermission(true);
+            setIsLoading(true);
           }}
+          disabled={
+            dayStatus.present === true ||
+            isLoading === true ||
+            dayStatus.reason?.excused === true
+              ? true
+              : false
+          }
         >
           <ButtonText>Permission</ButtonText>
         </Button>
