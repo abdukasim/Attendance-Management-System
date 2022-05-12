@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, SafeAreaView, RefreshControl } from "react-native";
+import {
+  FlatList,
+  SafeAreaView,
+  RefreshControl,
+  StyleSheet,
+  View,
+  Text,
+} from "react-native";
 import { ListItem, SearchBar } from "react-native-elements";
 import { Colors } from "./styles";
 
@@ -12,6 +19,7 @@ export default function CustomList({
   fetchWaitingList,
   fetchVisitedList,
   fetchAttendanceList,
+  fetchOrderList,
 }) {
   const [search, setSearch] = useState("");
   const [filteredDataSource, setFilteredDataSource] = useState(data);
@@ -26,6 +34,8 @@ export default function CustomList({
       fetchVisitedList();
     } else if (fetchAttendanceList) {
       fetchAttendanceList();
+    } else if (fetchOrderList) {
+      fetchOrderList();
     }
     setRefreshing(false);
   }, []);
@@ -80,26 +90,50 @@ export default function CustomList({
   );
   return (
     <SafeAreaView>
-      <SearchBar
-        placeholder="type here ..."
-        lightTheme
-        placeholderTextColor={brand}
-        leftIcon
-        containerStyle={{ backgroundColor: "white" }}
-        inputContainerStyle={{ backgroundColor: "white" }}
-        onChangeText={(text) => searchFilterFunction(text)}
-        onClear={(text) => searchFilterFunction("")}
-        value={search}
-      />
-      <FlatList
-        data={filteredDataSource}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 150 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
+      {!fetchOrderList && (
+        <SearchBar
+          placeholder="type here ..."
+          lightTheme
+          placeholderTextColor={brand}
+          leftIcon
+          containerStyle={{ backgroundColor: "white" }}
+          inputContainerStyle={{ backgroundColor: "white" }}
+          onChangeText={(text) => searchFilterFunction(text)}
+          onClear={(text) => searchFilterFunction("")}
+          value={search}
+        />
+      )}
+      {data.length === 0 ? (
+        <View style={styles.center}>
+          <Text style={styles.headingPrimary}>List is empty</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredDataSource}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingBottom: 150 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  center: {
+    display: "flex",
+    height: "90%",
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "red",
+  },
+  headingPrimary: {
+    fontSize: 20,
+    letterSpacing: 2,
+    // marginBottom: 20,
+    color: "black",
+  },
+});
