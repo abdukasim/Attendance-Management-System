@@ -7,6 +7,7 @@ import { Colors } from "../../components/styles";
 import WaitingListScreen from "./WaitingListScreen";
 import VisitedListScreen from "./VisitedListScreen";
 import AttendanceScreen from "../Attendance/AttendanceScreen";
+import BeneficiariesScreen from "./BeneficiariesScreen";
 
 const { brand, tertiary } = Colors;
 
@@ -37,6 +38,8 @@ export default function AdminTabs() {
               iconName = "check-circle";
             } else if (route.name === "Reports") {
               iconName = "bar-chart";
+            } else if (route.name === "Beneficiaries") {
+              iconName = "gift";
             }
 
             // You can return any component that you like here!
@@ -47,6 +50,7 @@ export default function AdminTabs() {
         })}
       >
         <Tab.Screen name="Attendance" component={AttendanceScreen} />
+        <Tab.Screen name="Beneficiaries" component={BeneficiariesScreen} />
         <Tab.Screen
           name="Waiting"
           options={{ headerTitle: "Waiting List" }}
