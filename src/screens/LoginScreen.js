@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   InnerContainer,
   PageLogo,
@@ -22,8 +22,15 @@ const { primary, darkLight } = Colors;
 // const baseUrl = 'http://192.168.234.216:3000';
 
 const LoginScreen = ({ navigation }) => {
+  const userRef = React.useRef();
+  const errRef = React.useRef();
+
   const [hidePassword, setHidePassword] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    userRef.current.focus();
+  }, []);
 
   const handleLogin = (credentials, setSubmitting) => {
     setErrorMsg(null);
@@ -67,6 +74,7 @@ const LoginScreen = ({ navigation }) => {
             {({ handleChange, handleSubmit, isSubmitting, values }) => (
               <StyledFormArea>
                 <CustomTextInput
+                  ref={userRef}
                   label="Username"
                   name="username"
                   icon="user"
