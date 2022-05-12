@@ -16,7 +16,7 @@ import {
 import url from "../../helpers/url";
 
 export default function VisitedListScreen({ visitedListFunc }) {
-  const [inVisitedList, setInVisitedList] = useState();
+  const [inVisitedList, setInVisitedList] = useState([]);
   const [visitedUser, setVisitedUser] = useState({});
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState("");
@@ -74,18 +74,18 @@ export default function VisitedListScreen({ visitedListFunc }) {
         console.log(childrenNumber);
         childrenNumber == null
           ? content.push(
-              <>
+              <React.Fragment key={key}>
                 <StyledInputLabel>{key}</StyledInputLabel>
                 <StyledTextDisplay>no children</StyledTextDisplay>
-              </>
+              </React.Fragment>
             )
           : content.push(
-              <>
+              <React.Fragment key={key}>
                 <StyledInputLabel>{key}</StyledInputLabel>
                 <StyledTextDisplay>
                   {childrenNumber.toString()}
                 </StyledTextDisplay>
-              </>
+              </React.Fragment>
             );
       } else if (
         key == "id" ||
@@ -98,10 +98,10 @@ export default function VisitedListScreen({ visitedListFunc }) {
         console.log("nth");
       } else {
         content.push(
-          <>
+          <React.Fragment key={key}>
             <StyledInputLabel>{key}</StyledInputLabel>
             <StyledTextDisplay>{details[key]}</StyledTextDisplay>
-          </>
+          </React.Fragment>
         );
       }
     }

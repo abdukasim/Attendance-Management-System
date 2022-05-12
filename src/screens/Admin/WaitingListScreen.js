@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
 import CustomList from "../../components/CustomList";
 import { Overlay } from "react-native-elements";
 import url from "../../helpers/url";
@@ -46,7 +45,6 @@ export default function WaitingListScreen({ waitingListFunc }) {
         toggleOverlay={toggleOverlay}
         fetchWaitingList={fetchWaitingList}
       />
-
       <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
         <KeyboardAvoidingWrapper>
           <WaitingListModal
