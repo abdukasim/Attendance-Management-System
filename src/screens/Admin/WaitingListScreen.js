@@ -5,6 +5,7 @@ import url from "../../helpers/url";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import WaitingListModal from "../../components/WaitingListModal";
 import { useFocusEffect } from "@react-navigation/native";
+import { View } from "react-native";
 
 export default function WaitingListScreen({ waitingListFunc }) {
   const [inWaitingList, setInWaitingList] = useState([]);

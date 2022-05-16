@@ -31,7 +31,7 @@ export default function VisitedListScreen({ visitedListFunc }) {
       console.log(res.data.list);
       setInVisitedList(res.data.list);
     } catch (err) {
-      console.log(err);
+      console.log(err.message);
       // setHasError(err);
     }
   };
@@ -52,13 +52,8 @@ export default function VisitedListScreen({ visitedListFunc }) {
       });
       console.log(res.data);
       setMsgType("SUCCESS");
-      setMessage("Added to Attendance Successfully!");
-      setTimeout(() => {
-        toggleOverlay();
-        fetchVisitedList();
-        setMessage("");
-        setMsgType("");
-      }, 1000);
+      setMessage("Added to Attendance Successfully!\n id: " + res.data);
+      fetchVisitedList();
     } catch (error) {
       console.error(error.response.data.description);
       setMsgType("ERROR");
@@ -116,7 +111,14 @@ export default function VisitedListScreen({ visitedListFunc }) {
         toggleOverlay={toggleOverlay}
         fetchVisitedList={fetchVisitedList}
       />
-      <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+      <Overlay
+        isVisible={visible}
+        onBackdropPress={() => {
+          toggleOverlay();
+          setMessage("");
+          setMsgType("");
+        }}
+      >
         <StyledModal>
           <ScrollView>
             <SubTitle>{visitedUser.name}</SubTitle>
