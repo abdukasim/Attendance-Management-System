@@ -83,7 +83,11 @@ export default function CustomList({
     >
       <ListItem.Content>
         <ListItem.Title> {item.name} </ListItem.Title>
-        <ListItem.Subtitle> {item.phone} </ListItem.Subtitle>
+        {item.muntahaID ? (
+          <ListItem.Subtitle> {item.muntahaID} </ListItem.Subtitle>
+        ) : (
+          <ListItem.Subtitle> {item.phone} </ListItem.Subtitle>
+        )}
       </ListItem.Content>
       <ListItem.Chevron />
     </ListItem>
