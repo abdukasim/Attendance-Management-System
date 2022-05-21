@@ -18,8 +18,6 @@ import url from "../../helpers/url";
 
 const { darkLight, primary, secondary, tertiary } = Colors;
 
-// const baseUrl = 'http://192.168.234.216:3000';
-
 const NewMemberRegistrationScreen = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
@@ -39,7 +37,7 @@ const NewMemberRegistrationScreen = () => {
           setSubmitting(false);
         }
       })
-      .catch();
+      .catch((err) => console.error(err.message));
   };
 
   return (
@@ -113,16 +111,14 @@ const NewMemberRegistrationScreen = () => {
                 />
                 <StyledInputLabel>Sex</StyledInputLabel>
                 <Picker
-                  prompt={"Select Gender"}
                   selectedValue={values.sex}
                   onValueChange={(itemValue, itemIndex) => {
-                    // setSelectedSex(itemValue);
                     setFieldValue("sex", itemValue);
                     console.log(itemValue);
                   }}
                   style={styles.pickerStyle}
                 >
-                  <Picker.Item label="" value="" />
+                  <Picker.Item label="--Select Gender--" enabled={false} />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>

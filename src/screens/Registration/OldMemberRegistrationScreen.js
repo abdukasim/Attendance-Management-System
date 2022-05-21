@@ -165,7 +165,6 @@ const OldMemberRegistrationScreen = () => {
 
                 <StyledInputLabel>Sex</StyledInputLabel>
                 <Picker
-                  prompt={"Select Gender"}
                   selectedValue={values.sex}
                   onValueChange={(itemValue, itemIndex) => {
                     // setSelectedSex(itemValue);
@@ -174,7 +173,7 @@ const OldMemberRegistrationScreen = () => {
                   }}
                   style={styles.pickerStyle}
                 >
-                  <Picker.Item label="" value="" />
+                  <Picker.Item label="--Select Gender--" enabled={false} />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>
