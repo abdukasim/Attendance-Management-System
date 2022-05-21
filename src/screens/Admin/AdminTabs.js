@@ -8,16 +8,9 @@ import WaitingListScreen from "./WaitingListScreen";
 import VisitedListScreen from "./VisitedListScreen";
 import AttendanceScreen from "../Attendance/AttendanceScreen";
 import BeneficiariesScreen from "./BeneficiariesScreen";
+import ReportsScreen from "./ReportsScreen";
 
 const { brand, tertiary } = Colors;
-
-function ReportsScreen() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Reports!</Text>
-    </View>
-  );
-}
 
 const Tab = createBottomTabNavigator();
 
