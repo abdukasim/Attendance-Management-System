@@ -103,7 +103,6 @@ const OldMemberRegistrationScreen = () => {
               skills: "",
             }}
             onSubmit={(values, { setSubmitting }) => {
-              // add to waiting list
               if (
                 values.name == "" ||
                 values.phone == "" ||
@@ -230,35 +229,43 @@ const OldMemberRegistrationScreen = () => {
                   <FieldArray name="children">
                     {({ insert, remove, push }) => (
                       <View>
-                        {console.log(values.children)}
                         {values.children.length > 0 &&
                           values.children.map((child, index) => (
                             <View key={index}>
                               <CustomTextInput
                                 label="Child Name"
-                                name={`children.${index}.name`}
+                                name={`children[${index}].name`}
                                 icon="child"
                                 placeholder="children"
                                 placeholderTextColor={darkLight}
-                                // onChangeText={handleChange("children")}
+                                onChangeText={handleChange(
+                                  `children[${index}].name`
+                                )}
+                                value={child.name}
                                 // onBlur={handleBlur}
                               />
                               <CustomTextInput
                                 label="Child Age"
-                                name={`children.${index}.age`}
+                                name={`children[${index}].age`}
                                 icon="child"
                                 placeholder="children"
                                 placeholderTextColor={darkLight}
-                                // onChangeText={handleChange("children")}
+                                onChangeText={handleChange(
+                                  `children[${index}].age`
+                                )}
+                                value={child.age}
                                 // onBlur={handleBlur}
                               />
                               <CustomTextInput
                                 label="Child Schooling"
-                                name={`children.${index}.schooling`}
+                                name={`children[${index}].schooling`}
                                 icon="child"
                                 placeholder="children"
                                 placeholderTextColor={darkLight}
-                                // onChangeText={handleChange("children")}
+                                onChangeText={handleChange(
+                                  `children[${index}].schooling`
+                                )}
+                                value={child.schooling}
                                 // onBlur={handleBlur}
                               />
                               <View style={styles.childrenButton}>
@@ -267,7 +274,7 @@ const OldMemberRegistrationScreen = () => {
                                 </StyledButton>
                                 <StyledButton
                                   onPress={() =>
-                                    push({ name: "", schooling: "" })
+                                    push({ name: "", age: "", schooling: "" })
                                   }
                                 >
                                   <ButtonText>Add Child</ButtonText>
