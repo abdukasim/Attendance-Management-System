@@ -153,3 +153,34 @@ export const Button = styled.TouchableOpacity`
   margin: 5px;
   background-color: ${(props) => (props.disabled ? secondary : props.color)};
 `;
+
+export const StatCard = styled.View`
+  width: 100%;
+  height: auto;
+  background-color: ${primary};
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const Stat = styled.View`
+  width: auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const StatTitle = styled.Text`
+  font-size: 16px;
+  color: ${tertiary};
+  font-weight: bold;
+`;
+
+export const StatValue = styled.Text`
+  font-size: 16px;
+  color: ${brand};
+  font-weight: 200;
+  text-align: center;
+`;
