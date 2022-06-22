@@ -21,15 +21,13 @@ export default function AttendanceListModal({
   dayStatus,
   fetchAttendanceList,
 }) {
-  const [present, setPresent] = useState(false);
-  const [permission, setPermission] = useState(false);
   const [message, setMessage] = useState("");
   const [msgType, setMsgType] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handlePresentAttendance = async (status) => {
+  const handlePresentAttendance = (status) => {
     try {
-      const res = await url.post("/api/attendance/client/attendance/check", {
+      const res = url.post("/api/attendance/client/attendance/check", {
         id: dbId,
         present: status,
       });
@@ -38,9 +36,9 @@ export default function AttendanceListModal({
       setMessage("Status Changed to Present Successfully!");
       setTimeout(() => {
         toggleOverlay();
-        fetchAttendanceList();
         setIsLoading(false);
       }, 1000);
+      fetchAttendanceList();
     } catch (error) {
       console.error(error.response.data.description);
       setMsgType("ERROR");
@@ -48,9 +46,9 @@ export default function AttendanceListModal({
       setIsLoading(false);
     }
   };
-  const handlePermissionAttendance = async (status) => {
+  const handlePermissionAttendance = (status) => {
     try {
-      const res = await url.post("/api/attendance/client/attendance/check", {
+      const res = url.post("/api/attendance/client/attendance/check", {
         id: dbId,
         permission: status,
       });
@@ -59,9 +57,9 @@ export default function AttendanceListModal({
       setMessage("Status Changed to Permission Successfully!");
       setTimeout(() => {
         toggleOverlay();
-        fetchAttendanceList();
         setIsLoading(false);
       }, 1000);
+      fetchAttendanceList();
     } catch (error) {
       console.error(error.response.data.description);
       setMsgType("ERROR");
@@ -69,16 +67,6 @@ export default function AttendanceListModal({
       setIsLoading(false);
     }
   };
-  useEffect(() => {
-    if (present) {
-      handlePresentAttendance(present);
-    }
-  }, [present]);
-  useEffect(() => {
-    if (permission) {
-      handlePermissionAttendance(permission);
-    }
-  }, [permission]);
 
   return (
     <AttendanceModal>
@@ -91,8 +79,8 @@ export default function AttendanceListModal({
         <Button
           color={green}
           onPress={() => {
-            setPresent(true);
             setIsLoading(true);
+            handlePresentAttendance(true);
           }}
           disabled={
             dayStatus.present === true ||
@@ -107,8 +95,8 @@ export default function AttendanceListModal({
         <Button
           color={brand}
           onPress={() => {
-            setPermission(true);
             setIsLoading(true);
+            handlePermissionAttendance(true);
           }}
           disabled={
             dayStatus.present === true ||
