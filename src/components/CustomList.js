@@ -88,6 +88,9 @@ export default function CustomList({
         ) : (
           <ListItem.Subtitle> {item.phone} </ListItem.Subtitle>
         )}
+        {item.address ? (
+          <ListItem.Subtitle> {item.address} </ListItem.Subtitle>
+        ) : null}
       </ListItem.Content>
       <ListItem.Chevron />
     </ListItem>
@@ -116,7 +119,7 @@ export default function CustomList({
           data={filteredDataSource}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
-          contentContainerStyle={{ paddingBottom: 150 }}
+          contentContainerStyle={{ paddingBottom: 500 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
