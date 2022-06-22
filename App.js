@@ -7,9 +7,26 @@ import AttendanceTabs from "./src/screens/Attendance/AttendanceTabs";
 import BoardScreen from "./src/screens/BoardScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+import io from "socket.io-client";
+import { LogBox } from "react-native";
+
 const Stack = createNativeStackNavigator();
 
 const App = () => {
+  const socketRef = React.useRef();
+
+  React.useEffect(() => {
+    socketRef.current = io("http://muntaha.herokuapp.com/");
+    socketRef.current.on("meal_count", (number) => {
+      console.log("meal-count:", number);
+    });
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
+  LogBox.ignoreLogs(["Picker has been extracted"]);
+
   return (
     <NavigationContainer>
       <Stack.Navigator
