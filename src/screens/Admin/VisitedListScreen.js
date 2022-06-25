@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import {
+  View,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Overlay } from "react-native-elements";
 import CustomList from "../../components/CustomList";
-import CustomTextInput from "../../components/CustomTextInput";
 import {
   StyledModal,
   SubTitle,
@@ -12,15 +18,22 @@ import {
   StyledInputLabel,
   StyledTextDisplay,
   MsgBox,
+  Colors,
 } from "../../components/styles";
 import url from "../../helpers/url";
+import { FontAwesome } from "@expo/vector-icons";
+import { Audio } from "expo-av";
 
-export default function VisitedListScreen({ visitedListFunc }) {
+const { brand } = Colors;
+
+export default function VisitedListScreen() {
   const [inVisitedList, setInVisitedList] = useState([]);
   const [visitedUser, setVisitedUser] = useState({});
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState("");
   const [msgType, setMsgType] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [audio, setAudio] = useState();
 
   const toggleOverlay = () => {
     setVisible(!visible);
@@ -32,7 +45,6 @@ export default function VisitedListScreen({ visitedListFunc }) {
       setInVisitedList(res.data.list);
     } catch (err) {
       console.log(err.message);
-      // setHasError(err);
     }
   };
   useEffect(() => {
@@ -46,6 +58,7 @@ export default function VisitedListScreen({ visitedListFunc }) {
   );
 
   const addToAttendance = async (id) => {
+    setIsLoading(true);
     try {
       const res = await url.post("/api/attendance/registration/accept", {
         id: id,
@@ -53,6 +66,12 @@ export default function VisitedListScreen({ visitedListFunc }) {
       console.log(res.data);
       setMsgType("SUCCESS");
       setMessage("Added to Attendance Successfully!\n id: " + res.data);
+      setIsLoading(false);
+      setTimeout(() => {
+        setMsgType("");
+        setMessage("");
+        toggleOverlay();
+      }, 2000);
       fetchVisitedList();
     } catch (error) {
       console.error(error.response.data.description);
@@ -62,12 +81,16 @@ export default function VisitedListScreen({ visitedListFunc }) {
   };
 
   const renderDetails = (details) => {
+    console.log("details: ", details);
     let content = [];
+    let ignore = ["id", "registrationDate", "visitDate"];
     for (const key in details) {
+      if (ignore.includes(key)) {
+        continue;
+      }
       if (key == "children") {
         let childrenNumber = details.children.length;
-        console.log(childrenNumber);
-        childrenNumber == null
+        childrenNumber == 0
           ? content.push(
               <React.Fragment key={key}>
                 <StyledInputLabel>{key}</StyledInputLabel>
@@ -77,20 +100,66 @@ export default function VisitedListScreen({ visitedListFunc }) {
           : content.push(
               <React.Fragment key={key}>
                 <StyledInputLabel>{key}</StyledInputLabel>
-                <StyledTextDisplay>
-                  {childrenNumber.toString()}
-                </StyledTextDisplay>
+                <StyledTextDisplay>{childrenNumber}</StyledTextDisplay>
               </React.Fragment>
             );
-      } else if (
-        key == "id" ||
-        key == "image" ||
-        key == "registrationDate" ||
-        key == "recording" ||
-        key == "birthday" ||
-        key == "visitDate"
-      ) {
-        console.log("nth");
+      } else if (key == "image") {
+        content.unshift(
+          <React.Fragment key={key}>
+            <StyledInputLabel>{key}</StyledInputLabel>
+            <Image
+              source={{ uri: "http://muntaha.herokuapp.com" + details[key] }}
+              style={{
+                width: 150,
+                height: 150,
+                borderRadius: 999,
+                overflow: "hidden",
+              }}
+            />
+          </React.Fragment>
+        );
+      } else if (key == "recording") {
+        content.splice(
+          1,
+          0,
+          <React.Fragment key={key}>
+            <StyledInputLabel>{key}</StyledInputLabel>
+            {console.log(details[key][0])}
+            <TouchableOpacity
+              onPress={async () => {
+                console.log("Loading Sound");
+                const { sound } = await Audio.Sound.createAsync({
+                  uri: `https://muntaha.herokuapp.com${details[key][0]}`,
+                });
+                setAudio(sound);
+                console.log("Sound Loaded", audio);
+                console.log("Playing Sound");
+                await sound.playAsync();
+                // sound.setOnPlaybackStatusUpdate(async (status) => {
+                //   console.log("Status", status);
+                //   if (status.didJustFinish) {
+                //     console.log("Finished");
+                //     await sound.unloadAsync();
+                //   }
+                // });
+              }}
+              style={{ ...styles.buttonStyle, backgroundColor: brand }}
+            >
+              <FontAwesome name="play" size={20} color="white" />
+            </TouchableOpacity>
+          </React.Fragment>
+        );
+      } else if (key === "rent" && typeof details[key] === "object") {
+        for (const [rentKey, value] of Object.entries(details[key])) {
+          content.push(
+            <React.Fragment key={rentKey}>
+              <StyledInputLabel>
+                {rentKey === "status" ? "shelterStatus" : "rentAmount"}
+              </StyledInputLabel>
+              <StyledTextDisplay>{value}</StyledTextDisplay>
+            </React.Fragment>
+          );
+        }
       } else {
         content.push(
           <React.Fragment key={key}>
@@ -122,14 +191,34 @@ export default function VisitedListScreen({ visitedListFunc }) {
         <StyledModal>
           <ScrollView>
             <SubTitle>{visitedUser.name}</SubTitle>
-            {renderDetails(visitedUser)}
+            {msgType !== "SUCCESS" && renderDetails(visitedUser)}
             <MsgBox type={msgType}>{message}</MsgBox>
-            <StyledButton onPress={() => addToAttendance(visitedUser.id)}>
-              <ButtonText>Accept</ButtonText>
-            </StyledButton>
+            {isLoading === false && msgType !== "SUCCESS" && (
+              <StyledButton onPress={() => addToAttendance(visitedUser.id)}>
+                <ButtonText>Accept</ButtonText>
+              </StyledButton>
+            )}
+            {isLoading === true && (
+              <StyledButton>
+                <ActivityIndicator size="small" color="white" />
+              </StyledButton>
+            )}
           </ScrollView>
         </StyledModal>
       </Overlay>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  buttonStyle: {
+    padding: 10,
+    width: 50,
+    height: 50,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 999,
+    marginRight: 20,
+  },
+});
