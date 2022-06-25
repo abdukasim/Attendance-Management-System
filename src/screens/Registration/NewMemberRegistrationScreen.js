@@ -25,6 +25,10 @@ const NewMemberRegistrationScreen = () => {
   const handleMessage = (message, type = "FAILED") => {
     setMessage(message);
     setMessageType(type);
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 2000);
   };
 
   const handleRegistration = (credentials, setSubmitting) => {
@@ -113,12 +117,13 @@ const NewMemberRegistrationScreen = () => {
                 <Picker
                   selectedValue={values.sex}
                   onValueChange={(itemValue, itemIndex) => {
-                    setFieldValue("sex", itemValue);
-                    console.log(itemValue);
+                    if (itemValue !== "default") {
+                      setFieldValue("sex", itemValue);
+                    }
                   }}
                   style={styles.pickerStyle}
                 >
-                  <Picker.Item label="--Select Gender--" enabled={false} />
+                  <Picker.Item label="Please select gender" value="default" />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>
