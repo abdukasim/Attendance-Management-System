@@ -34,9 +34,6 @@ const { brand, tertiary, darkLight, primary, secondary } = Colors;
 const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
   const [message, setMessage] = useState("");
   const [msgType, setMsgType] = useState("");
-  const [show, setShow] = useState(false);
-  const [date, setDate] = useState(new Date(2000, 0, 1));
-  const [dob, setDob] = useState();
   const [marital, setMarital] = useState();
   const [shelter, setShelter] = useState("");
   const [radioButton, setRadioButton] = useState();
@@ -115,17 +112,6 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
     { label: "No", value: 1 },
   ];
 
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(false);
-    setDate(currentDate);
-    setDob(currentDate);
-  };
-
-  const showDatePicker = () => {
-    setShow(true);
-  };
-
   function getFormData(object) {
     const formData = new FormData();
     formData.append("image", {
@@ -138,9 +124,8 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
       uri: audioUri,
       type: "audio/m4a",
     });
-    formData.append("birthday", dob.toDateString());
     Object.keys(object).forEach((key) => {
-      if (key !== "image" && key !== "recording" && key !== "birthday") {
+      if (key !== "image" && key !== "recording") {
         formData.append(key, object[key]);
       }
     });
@@ -194,26 +179,17 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
   }, [image]);
   return (
     <StyledModal>
-      {show && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="date"
-          is24Hour={true}
-          display="default"
-          onChange={onChange}
-        />
-      )}
       <SubTitle>{name}</SubTitle>
       <Formik
         initialValues={{
           id: id,
-          birthday: "",
+          age: "",
           maritalStatus: "",
           children: [{ name: "", age: "", schooling: "" }],
           jobStatus: "",
+          shelterStatus: "",
           rent: "",
-          health: "",
+          // health: "",
           remark: "",
         }}
         onSubmit={(values, { setSubmitting }) => {
@@ -221,7 +197,7 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
           if (
             values.maritalStatus === "" ||
             values.jobStatus === "" ||
-            values.rent === ""
+            values.shelterStatus === ""
           ) {
             setMsgType("ERROR");
             setMessage("Please fill all the fields");
@@ -306,12 +282,12 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
 
             <CustomTextInput
               label="Age"
-              name="birthday"
+              name="age"
               icon="calendar"
               placeholder="age"
               placeholderTextColor={darkLight}
-              onChangeText={handleChange("birthday")}
-              value={values.birthday}
+              onChangeText={handleChange("age")}
+              value={values.age}
               keyboardType="numeric"
               // onBlur={handleBlur}
             />
@@ -319,10 +295,10 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
             <StyledInputLabel>Shelter Status</StyledInputLabel>
             <Picker
               prompt={"Select"}
-              selectedValue={values.rent}
+              selectedValue={values.shelterStatus}
               onValueChange={(itemValue, itemIndex) => {
                 if (itemValue !== "default") {
-                  setFieldValue("rent", itemValue);
+                  setFieldValue("shelterStatus", itemValue);
                   setShelter(itemValue);
                 }
               }}
@@ -332,21 +308,22 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
                 label="Please select shelter status"
                 value="default"
               />
-              <Picker.Item label="Rent" value="Rent" />
-              <Picker.Item label="Private" value="Private" />
-              <Picker.Item label="Dependent" value="Dependent" />
-              <Picker.Item label="Homeless" value="Homeless" />
+              <Picker.Item label="Rent" value="rent" />
+              <Picker.Item label="Private" value="private" />
+              <Picker.Item label="Dependent" value="dependent" />
+              <Picker.Item label="Homeless" value="homeless" />
             </Picker>
 
             {shelter === "rent" && (
               <CustomTextInput
                 label="Rent Amount"
-                name="rentAmount"
+                name="rent"
                 icon="money"
                 placeholder="rent amount"
                 placeholderTextColor={darkLight}
-                onChangeText={handleChange("rentAmount")}
-                value={values.rentAmount}
+                onChangeText={handleChange("rent")}
+                value={values.rent}
+                keyboardType="numeric"
               />
             )}
 
@@ -489,14 +466,14 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
             />
 
             <CustomTextInput
-              label="Health"
-              name="health"
+              label="Remark"
+              name="remark"
               icon="home"
-              placeholder="health"
+              placeholder="remark"
               placeholderTextColor={darkLight}
-              onChangeText={handleChange("health")}
+              onChangeText={handleChange("remark")}
               // onBlur={handleBlur}
-              value={values.health}
+              value={values.remark}
             />
 
             <MsgBox type={msgType}>{message}</MsgBox>
