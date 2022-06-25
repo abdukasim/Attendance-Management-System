@@ -12,14 +12,21 @@ import {
 import { FieldArray, Formik } from "formik";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import CustomTextInput from "../../components/CustomTextInput";
-import { ActivityIndicator, StyleSheet } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as ImagePicker from "expo-image-picker";
 import RadioForm from "react-native-simple-radio-button";
 import url from "../../helpers/url";
 
-// import { View, Text } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 
 const { darkLight, primary, secondary, tertiary, brand } = Colors;
 
@@ -27,47 +34,61 @@ const OldMemberRegistrationScreen = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [marital, setMaritalStatus] = useState();
-  const [health, setHealthStatus] = useState();
   const [show, setShow] = useState(false);
-  const [date, setDate] = useState(new Date(2000, 0, 1));
   const [radioButton, setRadioButton] = useState();
+  const [image, setImage] = useState(null);
+  const [shelter, setShelter] = useState("");
 
   const radio_props = [
     { label: "Yes", value: 0 },
     { label: "No", value: 1 },
   ];
 
-  // Actual date of birth
-  const [dob, setDob] = useState();
-
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(false);
-    setDate(currentDate);
-    setDob(currentDate);
-  };
-
-  const showDatePicker = () => {
-    setShow(true);
-  };
-
   const handleMessage = (message, type = "FAILED") => {
     setMessage(message);
     setMessageType(type);
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 2000);
+  };
+
+  const getFormData = (object) => {
+    const formData = new FormData();
+    formData.append("image", {
+      name: new Date() + "_profile.jpg",
+      uri: object.image,
+      type: "image/jpg",
+    });
+    Object.keys(object).forEach((key) => {
+      formData.append(key, object[key]);
+    });
+    console.log(formData);
+    return formData;
   };
 
   const handleRegistration = (credentials, setSubmitting) => {
     handleMessage(null);
-    url
-      .post("/api/attendance/client/old-timer", credentials)
-      .then((res) => {
-        if (res.status === 200) {
-          handleMessage("Successfully registered", "SUCCESS");
-          setSubmitting(false);
-        }
+    //
+    const formData = getFormData(credentials);
+    console.log(formData);
+    //
+    fetch("https://muntaha.herokuapp.com/api/attendance/client/old-timer", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setSubmitting(false);
+        handleMessage("Successfully Registered", "SUCCESS");
       })
       .catch((err) => {
-        console.log("error: ", err.response.data.description);
+        console.log("catch:", err.message);
+        handleMessage(err.message, "ERROR");
         setSubmitting(false);
       });
   };
@@ -90,42 +111,47 @@ const OldMemberRegistrationScreen = () => {
             // enableReinitialize
             initialValues={{
               name: "",
-              birthday: "",
+              age: "",
               sex: "",
+              address: "",
+              phone: "",
+              shetlerStatus: "",
+              rent: "",
+              jobStatus: "",
               maritalStatus: "",
               spouse: "",
               children: [{ name: "", age: "", schooling: "" }],
-              jobStatus: "",
-              rent: "",
-              address: "",
-              phone: "",
               health: "",
-              skills: "",
             }}
             onSubmit={(values, { setSubmitting }) => {
               if (
                 values.name == "" ||
                 values.phone == "" ||
                 values.sex == "" ||
-                values.address == ""
+                values.address == "" ||
+                values.jobStatus == "" ||
+                values.maritalStatus == "" ||
+                values.shetlerStatus == ""
               ) {
                 handleMessage("Please fill all the fields");
+                console.log("value", values);
+                setTimeout(() => {
+                  handleMessage("");
+                }, 2000);
                 setSubmitting(false);
               } else {
                 console.log(values);
                 handleRegistration(values, setSubmitting);
-                values.name = null;
-                values.birthday = null;
-                values.sex = null;
-                values.maritalStatus = null;
-                values.spouse = null;
-                values.children = null;
-                values.jobStatus = null;
-                values.rent = null;
-                values.address = null;
-                values.phone = null;
-                values.health = null;
-                values.skills = null;
+                // values.name = null;
+                // values.age = null;
+                // values.sex = null;
+                // values.maritalStatus = null;
+                // values.spouse = null;
+                // values.children = null;
+                // values.jobStatus = null;
+                // values.shetlerStatus = null;
+                // values.address = null;
+                // values.phone = null;
               }
             }}
           >
@@ -137,6 +163,37 @@ const OldMemberRegistrationScreen = () => {
               setFieldValue,
             }) => (
               <StyledFormArea>
+                <View style={imageUploaderStyles.container}>
+                  {image && (
+                    <Image
+                      source={{ uri: image }}
+                      style={{ width: 150, height: 150 }}
+                    />
+                  )}
+                  <View style={imageUploaderStyles.uploadBtnContainer}>
+                    <TouchableOpacity
+                      onPress={async () => {
+                        let _image = await ImagePicker.launchImageLibraryAsync({
+                          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                          allowsEditing: true,
+                          aspect: [4, 4],
+                          quality: 0.5,
+                        });
+
+                        console.log(JSON.stringify(_image));
+
+                        if (!_image.cancelled) {
+                          setImage(_image.uri);
+                          setFieldValue("image", _image.uri);
+                        }
+                      }}
+                      style={imageUploaderStyles.uploadBtn}
+                    >
+                      <Text>{image ? "Edit" : "Upload"} Image</Text>
+                      <FontAwesome name="camera" size={20} color={brand} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
                 <CustomTextInput
                   label="Full Name"
                   name="name"
@@ -144,22 +201,17 @@ const OldMemberRegistrationScreen = () => {
                   placeholder="Name"
                   placeholderTextColor={darkLight}
                   onChangeText={handleChange("name")}
-                  // onBlur={handleBlur}
                   value={values.name}
                 />
 
                 <CustomTextInput
-                  label="Birthday"
-                  name="birthday"
+                  label="Age"
+                  name="age"
                   icon="calendar"
-                  placeholder="birthday"
+                  placeholder="age"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("birthday")}
-                  // onBlur={handleBlur}
-                  value={dob ? dob.toDateString() : ""}
-                  isDate={true}
-                  editable={false}
-                  showDatePicker={showDatePicker}
+                  onChangeText={handleChange("age")}
+                  value={values.age}
                 />
 
                 <StyledInputLabel>Sex</StyledInputLabel>
@@ -172,50 +224,98 @@ const OldMemberRegistrationScreen = () => {
                   }}
                   style={styles.pickerStyle}
                 >
-                  <Picker.Item label="--Select Gender--" enabled={false} />
+                  <Picker.Item label="Please select gender" value="unknown" />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>
+
+                <CustomTextInput
+                  label="Address"
+                  name="address"
+                  icon="home"
+                  placeholder="address"
+                  placeholderTextColor={darkLight}
+                  onChangeText={handleChange("address")}
+                  value={values.address}
+                />
+
+                <CustomTextInput
+                  label="Phone Number"
+                  name="phone"
+                  icon="phone"
+                  placeholder="phone number"
+                  placeholderTextColor={darkLight}
+                  onChangeText={handleChange("phone")}
+                  value={values.phone}
+                  keyboardType="numeric"
+                />
+
+                <StyledInputLabel>Shelter Status</StyledInputLabel>
+                <Picker
+                  prompt={"Select"}
+                  selectedValue={values.shetlerStatus}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setFieldValue("shetlerStatus", itemValue);
+                  }}
+                  style={styles.pickerStyle}
+                >
+                  <Picker.Item
+                    label="Please select shelter status"
+                    value={null}
+                  />
+                  <Picker.Item label="Rent" value="rent" />
+                  <Picker.Item label="Private" value="private" />
+                  <Picker.Item label="Dependent" value="dependent" />
+                  <Picker.Item label="Homeless" value="homeless" />
+                </Picker>
+
+                {shelter === "rent" && (
+                  <CustomTextInput
+                    label="Rent Amount"
+                    name="rent"
+                    icon="money"
+                    placeholder="rent amount"
+                    placeholderTextColor={darkLight}
+                    onChangeText={handleChange("rent")}
+                    value={values.rent}
+                  />
+                )}
+
+                <CustomTextInput
+                  label="Job"
+                  name="jobStatus"
+                  icon="briefcase"
+                  placeholder="jobStatus"
+                  placeholderTextColor={darkLight}
+                  onChangeText={handleChange("jobStatus")}
+                  value={values.jobStatus}
+                />
 
                 <StyledInputLabel>Marital Status</StyledInputLabel>
                 <Picker
                   prompt={"Select Marital"}
                   selectedValue={values.maritalStatus}
                   onValueChange={(itemValue, itemIndex) => {
-                    // setSelectedSex(itemValue);
                     setMaritalStatus(itemValue);
-                    console.log(marital);
                     setFieldValue("maritalStatus", itemValue);
-                    // console.log(itemValue);
                   }}
                   style={styles.pickerStyle}
                 >
-                  <Picker.Item label="" value="" />
+                  <Picker.Item
+                    label="Please select marital status"
+                    value={null}
+                  />
                   <Picker.Item label="Divorced" value="Divorced" />
                   <Picker.Item label="Married" value="Married" />
                   <Picker.Item label="Widowed" value="Widowed" />
                   <Picker.Item label="Abandoned" value="Abandoned" />
                 </Picker>
 
-                {marital === "Married" && (
-                  <CustomTextInput
-                    label="Spouse"
-                    name="spouse"
-                    icon="male"
-                    placeholder="spouse"
-                    placeholderTextColor={darkLight}
-                    onChangeText={handleChange("spouse")}
-                    // onBlur={handleBlur}
-                    value={values.spouse}
-                  />
-                )}
-
                 <StyledInputLabel>Children</StyledInputLabel>
                 <RadioForm
                   radio_props={radio_props}
                   initial={-1}
                   formHorizontal={true}
-                  // labelHorizontal={true}
                   buttonColor={brand}
                   selectedButtonColor={brand}
                   animation={true}
@@ -229,7 +329,7 @@ const OldMemberRegistrationScreen = () => {
                   <FieldArray name="children">
                     {({ insert, remove, push }) => (
                       <View>
-                        {values.children.length > 0 &&
+                        {values.children?.length > 0 &&
                           values.children.map((child, index) => (
                             <View key={index}>
                               <CustomTextInput
@@ -242,7 +342,6 @@ const OldMemberRegistrationScreen = () => {
                                   `children[${index}].name`
                                 )}
                                 value={child.name}
-                                // onBlur={handleBlur}
                               />
                               <CustomTextInput
                                 label="Child Age"
@@ -254,7 +353,7 @@ const OldMemberRegistrationScreen = () => {
                                   `children[${index}].age`
                                 )}
                                 value={child.age}
-                                // onBlur={handleBlur}
+                                keyboardType="numeric"
                               />
                               <CustomTextInput
                                 label="Child Schooling"
@@ -266,7 +365,6 @@ const OldMemberRegistrationScreen = () => {
                                   `children[${index}].schooling`
                                 )}
                                 value={child.schooling}
-                                // onBlur={handleBlur}
                               />
                               <View style={styles.childrenButton}>
                                 <StyledButton onPress={() => remove(index)}>
@@ -287,78 +385,23 @@ const OldMemberRegistrationScreen = () => {
                   </FieldArray>
                 )}
 
-                <CustomTextInput
-                  label="Job"
-                  name="jobStatus"
-                  icon="briefcase"
-                  placeholder="jobStatus"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("jobStatus")}
-                  // onBlur={handleBlur}
-                  value={values.jobStatus}
-                />
-
-                <CustomTextInput
-                  label="Rent"
-                  name="rent"
-                  icon="money"
-                  placeholder="rent"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("rent")}
-                  // onBlur={handleBlur}
-                  value={values.rent}
-                  keyboardType="numeric"
-                />
-                <CustomTextInput
-                  label="Address"
-                  name="address"
-                  icon="home"
-                  placeholder="address"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("address")}
-                  // onBlur={handleBlur}
-                  value={values.address}
-                />
-
-                <CustomTextInput
-                  label="Phone Number"
-                  name="phone"
-                  icon="phone"
-                  placeholder="phone number"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("phone")}
-                  // onBlur={handleBlur}
-                  value={values.phone}
-                  keyboardType="numeric"
-                />
-
-                <StyledInputLabel>Health Status</StyledInputLabel>
+                {/* <StyledInputLabel>Health Status</StyledInputLabel>
                 <Picker
                   prompt={"Health Status"}
                   selectedValue={values.health}
                   onValueChange={(itemValue, itemIndex) => {
-                    // setSelectedSex(itemValue);
                     setHealthStatus(itemValue);
-                    // console.log(marital);
                     setFieldValue("health", itemValue);
-                    // console.log(itemValue);
                   }}
                   style={styles.pickerStyle}
                 >
+                  <Picker.Item
+                    label="Please select health status"
+                    enabled={false}
+                  />
                   <Picker.Item label="Healthy" value="Healthy" />
                   <Picker.Item label="On Medication" value="Medication" />
-                </Picker>
-
-                <CustomTextInput
-                  label="Skills"
-                  name="skills"
-                  icon="tasks"
-                  placeholder="skills"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("skills")}
-                  // onBlur={handleBlur}
-                  value={values.skills}
-                />
+                </Picker> */}
 
                 <MsgBox type={messageType}> {message} </MsgBox>
                 {!isSubmitting && (
@@ -398,6 +441,33 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",
+  },
+});
+const imageUploaderStyles = StyleSheet.create({
+  container: {
+    elevation: 2,
+    height: 150,
+    width: 150,
+    backgroundColor: "#efefef",
+    position: "relative",
+    borderRadius: 999,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  uploadBtnContainer: {
+    opacity: 0.7,
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    backgroundColor: "lightgrey",
+    width: "100%",
+    height: "40%",
+  },
+  uploadBtn: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
   },
 });
 
