@@ -87,7 +87,7 @@ const OldMemberRegistrationScreen = () => {
         handleMessage("Successfully Registered", "SUCCESS");
       })
       .catch((err) => {
-        console.log("catch:", err.message);
+        console.log("catch:", err);
         handleMessage(err.message, "ERROR");
         setSubmitting(false);
       });
@@ -212,19 +212,20 @@ const OldMemberRegistrationScreen = () => {
                   placeholderTextColor={darkLight}
                   onChangeText={handleChange("age")}
                   value={values.age}
+                  keyboardType="numeric"
                 />
 
                 <StyledInputLabel>Sex</StyledInputLabel>
                 <Picker
                   selectedValue={values.sex}
                   onValueChange={(itemValue, itemIndex) => {
-                    // setSelectedSex(itemValue);
-                    setFieldValue("sex", itemValue);
-                    console.log(itemValue);
+                    if (itemValue !== "default") {
+                      setFieldValue("sex", itemValue);
+                    }
                   }}
                   style={styles.pickerStyle}
                 >
-                  <Picker.Item label="Please select gender" value="unknown" />
+                  <Picker.Item label="Please select gender" value="default" />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>
@@ -255,13 +256,16 @@ const OldMemberRegistrationScreen = () => {
                   prompt={"Select"}
                   selectedValue={values.shetlerStatus}
                   onValueChange={(itemValue, itemIndex) => {
-                    setFieldValue("shetlerStatus", itemValue);
+                    if (itemValue !== "default") {
+                      setFieldValue("shetlerStatus", itemValue);
+                      setShelter(itemValue);
+                    }
                   }}
                   style={styles.pickerStyle}
                 >
                   <Picker.Item
                     label="Please select shelter status"
-                    value={null}
+                    value="default"
                   />
                   <Picker.Item label="Rent" value="rent" />
                   <Picker.Item label="Private" value="private" />
@@ -278,6 +282,7 @@ const OldMemberRegistrationScreen = () => {
                     placeholderTextColor={darkLight}
                     onChangeText={handleChange("rent")}
                     value={values.rent}
+                    keyboardType="numeric"
                   />
                 )}
 
@@ -296,14 +301,16 @@ const OldMemberRegistrationScreen = () => {
                   prompt={"Select Marital"}
                   selectedValue={values.maritalStatus}
                   onValueChange={(itemValue, itemIndex) => {
-                    setMaritalStatus(itemValue);
-                    setFieldValue("maritalStatus", itemValue);
+                    if (itemValue !== "default") {
+                      setMaritalStatus(itemValue);
+                      setFieldValue("maritalStatus", itemValue);
+                    }
                   }}
                   style={styles.pickerStyle}
                 >
                   <Picker.Item
                     label="Please select marital status"
-                    value={null}
+                    value="default"
                   />
                   <Picker.Item label="Divorced" value="Divorced" />
                   <Picker.Item label="Married" value="Married" />
@@ -336,7 +343,7 @@ const OldMemberRegistrationScreen = () => {
                                 label="Child Name"
                                 name={`children[${index}].name`}
                                 icon="child"
-                                placeholder="children"
+                                placeholder="name"
                                 placeholderTextColor={darkLight}
                                 onChangeText={handleChange(
                                   `children[${index}].name`
@@ -347,7 +354,7 @@ const OldMemberRegistrationScreen = () => {
                                 label="Child Age"
                                 name={`children[${index}].age`}
                                 icon="child"
-                                placeholder="children"
+                                placeholder="age"
                                 placeholderTextColor={darkLight}
                                 onChangeText={handleChange(
                                   `children[${index}].age`
@@ -359,7 +366,7 @@ const OldMemberRegistrationScreen = () => {
                                 label="Child Schooling"
                                 name={`children[${index}].schooling`}
                                 icon="child"
-                                placeholder="children"
+                                placeholder="schooling"
                                 placeholderTextColor={darkLight}
                                 onChangeText={handleChange(
                                   `children[${index}].schooling`
@@ -367,16 +374,34 @@ const OldMemberRegistrationScreen = () => {
                                 value={child.schooling}
                               />
                               <View style={styles.childrenButton}>
-                                <StyledButton onPress={() => remove(index)}>
-                                  <ButtonText>Remove</ButtonText>
-                                </StyledButton>
-                                <StyledButton
+                                <TouchableOpacity
+                                  onPress={() => remove(index)}
+                                  style={{
+                                    ...styles.buttonStyle,
+                                    backgroundColor: "red",
+                                  }}
+                                >
+                                  <Text
+                                    style={{ color: "white", fontSize: 20 }}
+                                  >
+                                    -
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
                                   onPress={() =>
                                     push({ name: "", age: "", schooling: "" })
                                   }
+                                  style={{
+                                    ...styles.buttonStyle,
+                                    backgroundColor: "green",
+                                  }}
                                 >
-                                  <ButtonText>Add Child</ButtonText>
-                                </StyledButton>
+                                  <Text
+                                    style={{ color: "white", fontSize: 20 }}
+                                  >
+                                    +
+                                  </Text>
+                                </TouchableOpacity>
                               </View>
                             </View>
                           ))}
@@ -384,24 +409,6 @@ const OldMemberRegistrationScreen = () => {
                     )}
                   </FieldArray>
                 )}
-
-                {/* <StyledInputLabel>Health Status</StyledInputLabel>
-                <Picker
-                  prompt={"Health Status"}
-                  selectedValue={values.health}
-                  onValueChange={(itemValue, itemIndex) => {
-                    setHealthStatus(itemValue);
-                    setFieldValue("health", itemValue);
-                  }}
-                  style={styles.pickerStyle}
-                >
-                  <Picker.Item
-                    label="Please select health status"
-                    enabled={false}
-                  />
-                  <Picker.Item label="Healthy" value="Healthy" />
-                  <Picker.Item label="On Medication" value="Medication" />
-                </Picker> */}
 
                 <MsgBox type={messageType}> {message} </MsgBox>
                 {!isSubmitting && (
@@ -441,6 +448,16 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",
+  },
+  buttonStyle: {
+    padding: 10,
+    width: 50,
+    height: 50,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 999,
+    marginRight: 20,
   },
 });
 const imageUploaderStyles = StyleSheet.create({
