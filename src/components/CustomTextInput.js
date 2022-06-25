@@ -13,18 +13,7 @@ const { brand, darkLight } = Colors;
 
 const CustomTextInput = forwardRef(
   (
-    {
-      label,
-      icon,
-      isPassword,
-      hidePassword,
-      setHidePassword,
-      isSex,
-      showPicker,
-      isDate,
-      showDatePicker,
-      ...props
-    },
+    { label, icon, isPassword, hidePassword, setHidePassword, ...props },
     ref
   ) => {
     return (
@@ -33,18 +22,7 @@ const CustomTextInput = forwardRef(
           <FontAwesome name={icon} size={30} color={brand} />
         </LeftIcon>
         <StyledInputLabel>{label}</StyledInputLabel>
-        {/* {!isSex && <StyledTextInput {...props} />} */}
-        {isSex && (
-          <TouchableOpacity onPress={showPicker}>
-            <StyledTextInput {...props} />
-          </TouchableOpacity>
-        )}
-        {!isDate && <StyledTextInput {...props} ref={ref} />}
-        {isDate && (
-          <TouchableOpacity onPress={showDatePicker}>
-            <StyledTextInput {...props} />
-          </TouchableOpacity>
-        )}
+        <StyledTextInput {...props} ref={ref} />
         {isPassword && (
           <RightIcon onPress={() => setHidePassword(!hidePassword)}>
             <FontAwesome
