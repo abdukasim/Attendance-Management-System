@@ -25,14 +25,14 @@ const LoginValidationSchema = yup.object().shape({
 });
 
 const LoginScreen = ({ navigation }) => {
-  const userRef = React.useRef();
+  // const userRef = React.useRef();
 
   const [hidePassword, setHidePassword] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  useEffect(() => {
-    userRef.current.focus();
-  }, [userRef.current]);
+  // useEffect(() => {
+  //   userRef.current.focus();
+  // }, [userRef.current]);
 
   const handleLogin = (credentials, setSubmitting) => {
     setErrorMsg(null);
@@ -76,7 +76,7 @@ const LoginScreen = ({ navigation }) => {
               <StyledFormArea>
                 <Field
                   component={CustomTextInput}
-                  ref={userRef}
+                  // ref={userRef}
                   label="Username"
                   name="username"
                   icon="user"
