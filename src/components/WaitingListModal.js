@@ -21,19 +21,27 @@ import {
   MsgBox,
 } from "./styles";
 import CustomTextInput from "./CustomTextInput";
-import { Formik, FieldArray } from "formik";
+import { Formik, FieldArray, Field } from "formik";
 import RadioForm from "react-native-simple-radio-button";
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import { Audio } from "expo-av";
+import * as yup from "yup";
 
 const { brand, tertiary, darkLight, primary, secondary } = Colors;
 
+const WaitingListValidationSchema = yup.object().shape({
+  age: yup.number().required("Age is required"),
+  shelterStatus: yup.string().required("Shelter Status is required"),
+  jobStatus: yup.string().required("Job Status is required"),
+  maritalStatus: yup.string().required("Marital Status is required"),
+});
+
 const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
   const [message, setMessage] = useState("");
-  const [msgType, setMsgType] = useState("");
+  const [messageType, setMessageType] = useState("");
   const [marital, setMarital] = useState();
   const [shelter, setShelter] = useState("");
   const [radioButton, setRadioButton] = useState();
@@ -112,6 +120,15 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
     { label: "No", value: 1 },
   ];
 
+  const handleMessage = (message, type = "FAILED") => {
+    setMessage(message);
+    setMessageType(type);
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 2000);
+  };
+
   function getFormData(object) {
     const formData = new FormData();
     formData.append("image", {
@@ -146,27 +163,17 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
     })
       .then((res) => {
         console.log(res.status);
-        setMsgType("SUCCESS");
-        setMessage("Successfully added to visited list");
-        setTimeout(() => {
-          toggleOverlay();
-          fetchWaitingList();
-        }, 1000);
+        handleMessage("Successfully added to visited list", "SUCCESS");
       })
       .catch((err) => {
         if (
           err.message === "Network Error" ||
           err.message === "Network request failed"
         ) {
-          setMsgType("SUCCESS");
-          setMessage("Successfully added to visited list");
-          setTimeout(() => {
-            toggleOverlay();
-            fetchWaitingList();
-          }, 1000);
+          handleMessage("Successfully added to visited list", "SUCCESS");
         } else {
-          setMsgType("ERROR");
-          setMessage(err.message);
+          console.log(err);
+          handleMessage(err.message, "ERROR");
         }
       })
       .finally(() => {
@@ -183,6 +190,7 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
       <Formik
         initialValues={{
           id: id,
+          image: "",
           age: "",
           maritalStatus: "",
           children: [{ name: "", age: "", schooling: "" }],
@@ -192,31 +200,20 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
           // health: "",
           remark: "",
         }}
+        validationSchema={WaitingListValidationSchema}
         onSubmit={(values, { setSubmitting }) => {
-          // check if values are empty
-          if (
-            values.maritalStatus === "" ||
-            values.jobStatus === "" ||
-            values.shelterStatus === ""
-          ) {
-            setMsgType("ERROR");
-            setMessage("Please fill all the fields");
-            setTimeout(() => {
-              setMsgType("");
-              setMessage("");
-            }, 2000);
-            setSubmitting(false);
-          } else {
-            handleWaitingListForm(values, setSubmitting);
-          }
+          handleWaitingListForm(values, setSubmitting);
         }}
       >
         {({
-          handleChange,
           handleSubmit,
+          handleBlur,
           isSubmitting,
           values,
+          errors,
+          touched,
           setFieldValue,
+          setFieldTouched,
         }) => (
           <StyledFormArea>
             <View style={imageUploaderStyles.container}>
@@ -229,6 +226,7 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
               <View style={imageUploaderStyles.uploadBtnContainer}>
                 <TouchableOpacity
                   onPress={async () => {
+                    setFieldTouched("image", true);
                     let _image = await ImagePicker.launchImageLibraryAsync({
                       mediaTypes: ImagePicker.MediaTypeOptions.Images,
                       allowsEditing: true,
@@ -237,7 +235,8 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
                     });
 
                     console.log(JSON.stringify(_image));
-
+                    _image.cancelled &&
+                      setFieldError("image", "Image is Required");
                     if (!_image.cancelled) {
                       setImage(_image.uri);
                       setFieldValue("image", _image.uri);
@@ -280,29 +279,33 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
               </TouchableOpacity>
             </View>
 
-            <CustomTextInput
+            <Field
+              component={CustomTextInput}
               label="Age"
               name="age"
               icon="calendar"
               placeholder="age"
               placeholderTextColor={darkLight}
-              onChangeText={handleChange("age")}
-              value={values.age}
               keyboardType="numeric"
-              // onBlur={handleBlur}
             />
 
             <StyledInputLabel>Shelter Status</StyledInputLabel>
             <Picker
-              prompt={"Select"}
               selectedValue={values.shelterStatus}
               onValueChange={(itemValue, itemIndex) => {
+                setFieldTouched("shelterStatus", true);
                 if (itemValue !== "default") {
                   setFieldValue("shelterStatus", itemValue);
                   setShelter(itemValue);
                 }
               }}
-              style={styles.pickerStyle}
+              style={[
+                styles.pickerStyle,
+                errors.shelterStatus &&
+                  touched.shelterStatus &&
+                  styles.errorInput,
+              ]}
+              onBlur={handleBlur("shelterStatus")}
             >
               <Picker.Item
                 label="Please select shelter status"
@@ -313,31 +316,39 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
               <Picker.Item label="Dependent" value="dependent" />
               <Picker.Item label="Homeless" value="homeless" />
             </Picker>
+            {errors.shelterStatus && touched.shelterStatus && (
+              <Text style={styles.errorText}>{errors.shelterStatus}</Text>
+            )}
 
             {shelter === "rent" && (
-              <CustomTextInput
+              <Field
+                component={CustomTextInput}
                 label="Rent Amount"
                 name="rent"
                 icon="money"
                 placeholder="rent amount"
                 placeholderTextColor={darkLight}
-                onChangeText={handleChange("rent")}
-                value={values.rent}
                 keyboardType="numeric"
               />
             )}
 
             <StyledInputLabel>Marital Status</StyledInputLabel>
             <Picker
-              prompt={"Select Marital"}
               selectedValue={values.maritalStatus}
               onValueChange={(itemValue, itemIndex) => {
+                setFieldTouched("maritalStatus", true);
                 if (itemValue !== "default") {
                   setMarital(itemValue);
                   setFieldValue("maritalStatus", itemValue);
                 }
               }}
-              style={styles.pickerStyle}
+              style={[
+                styles.pickerStyle,
+                errors.maritalStatus &&
+                  touched.maritalStatus &&
+                  styles.errorInput,
+              ]}
+              onBlur={handleBlur("maritalStatus")}
             >
               <Picker.Item
                 label="Please select marital status"
@@ -348,17 +359,18 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
               <Picker.Item label="Widowed" value="Widowed" />
               <Picker.Item label="Abandoned" value="Abandoned" />
             </Picker>
+            {errors.maritalStatus && touched.maritalStatus && (
+              <Text style={styles.errorText}>{errors.maritalStatus}</Text>
+            )}
 
             {marital === "Married" && (
-              <CustomTextInput
+              <Field
+                component={CustomTextInput}
                 label="Spouse"
                 name="spouse"
                 icon="male"
                 placeholder="spouse"
                 placeholderTextColor={darkLight}
-                onChangeText={handleChange("spouse")}
-                // onBlur={handleBlur}
-                value={values.spouse}
               />
             )}
 
@@ -384,42 +396,30 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
                     {values.children?.length > 0 &&
                       values.children.map((child, index) => (
                         <View key={index}>
-                          <CustomTextInput
+                          <Field
+                            component={CustomTextInput}
                             label="Child Name"
                             name={`children[${index}].name`}
                             icon="child"
                             placeholder="Name"
                             placeholderTextColor={darkLight}
-                            onChangeText={handleChange(
-                              `children[${index}].name`
-                            )}
-                            value={child.name}
-                            // onBlur={handleBlur}
                           />
-                          <CustomTextInput
+                          <Field
+                            component={CustomTextInput}
                             label="Child Age"
                             name={`children[${index}].age`}
                             icon="child"
                             placeholder="Age"
                             placeholderTextColor={darkLight}
-                            onChangeText={handleChange(
-                              `children[${index}].age`
-                            )}
-                            value={child.age}
                             keyboardType="numeric"
-                            // onBlur={handleBlur}
                           />
-                          <CustomTextInput
+                          <Field
+                            component={CustomTextInput}
                             label="Child Schooling"
                             name={`children[${index}].schooling`}
                             icon="child"
                             placeholder="Schooling"
                             placeholderTextColor={darkLight}
-                            onChangeText={handleChange(
-                              `children[${index}].schooling`
-                            )}
-                            value={child.schooling}
-                            // onBlur={handleBlur}
                           />
                           <View style={styles.childrenButton}>
                             <TouchableOpacity
@@ -454,29 +454,25 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
               </FieldArray>
             )}
 
-            <CustomTextInput
+            <Field
+              component={CustomTextInput}
               label="JobType"
               name="jobStatus"
               icon="briefcase"
               placeholder="jobStatus"
               placeholderTextColor={darkLight}
-              onChangeText={handleChange("jobStatus")}
-              // onBlur={handleBlur}
-              value={values.jobStatus}
             />
 
-            <CustomTextInput
+            <Field
+              component={CustomTextInput}
               label="Remark"
               name="remark"
               icon="home"
               placeholder="remark"
               placeholderTextColor={darkLight}
-              onChangeText={handleChange("remark")}
-              // onBlur={handleBlur}
-              value={values.remark}
             />
 
-            <MsgBox type={msgType}>{message}</MsgBox>
+            <MsgBox type={messageType}>{message}</MsgBox>
             {!isSubmitting && (
               <StyledButton onPress={handleSubmit}>
                 <ButtonText>Register</ButtonText>
@@ -543,6 +539,7 @@ const styles = StyleSheet.create({
     paddingLeft: 55,
     paddingRight: 55,
     borderRadius: 5,
+    borderWidth: 1,
     fontSize: 16,
     height: 60,
     marginVertical: 3,
@@ -578,6 +575,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 999,
     marginRight: 20,
+  },
+  errorText: {
+    fontSize: 10,
+    color: "red",
+  },
+  errorInput: {
+    borderColor: "red",
+    borderWidth: 1,
   },
 });
 

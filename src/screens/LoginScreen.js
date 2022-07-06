@@ -11,33 +11,38 @@ import {
   ButtonText,
   MsgBox,
 } from "../components/styles";
-import { Formik } from "formik";
+import { Field, Formik } from "formik";
 import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
 import CustomTextInput from "../components/CustomTextInput";
 import url from "../helpers/url";
 import { ActivityIndicator } from "react-native";
-
+import * as yup from "yup";
 const { primary, darkLight } = Colors;
 
-// const baseUrl = 'http://192.168.234.216:3000';
+const LoginValidationSchema = yup.object().shape({
+  username: yup.string().required("Username is required"),
+  password: yup.string().required("Password is required"),
+});
 
 const LoginScreen = ({ navigation }) => {
   const userRef = React.useRef();
-  const errRef = React.useRef();
 
   const [hidePassword, setHidePassword] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     userRef.current.focus();
-  }, []);
+  }, [userRef.current]);
 
   const handleLogin = (credentials, setSubmitting) => {
     setErrorMsg(null);
     url
       .post("/api/session", credentials)
       .then((res) => {
-        if (res.status == 200) navigation.navigate(res.data.type);
+        if (res.status == 200) {
+          navigation.navigate(res.data.type);
+          console.log("loginreponse:", res.data);
+        }
         setSubmitting(false);
       })
       .catch((err) => {
@@ -60,37 +65,31 @@ const LoginScreen = ({ navigation }) => {
           <SubTitle>Login</SubTitle>
           <Formik
             initialValues={{ username: "", password: "" }}
+            validationSchema={LoginValidationSchema}
             onSubmit={(values, { setSubmitting }) => {
-              if (values.username == "" || values.password == "") {
-                setErrorMsg("Please fill all the fields");
-                setSubmitting(false);
-              } else {
-                handleLogin(values, setSubmitting);
-                values.username = null;
-                values.password = null;
-              }
+              handleLogin(values, setSubmitting);
+              values.username = null;
+              values.password = null;
             }}
           >
             {({ handleChange, handleSubmit, isSubmitting, values }) => (
               <StyledFormArea>
-                <CustomTextInput
+                <Field
+                  component={CustomTextInput}
                   ref={userRef}
                   label="Username"
                   name="username"
                   icon="user"
                   placeholder="username"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("username")}
-                  value={values.username}
                 />
-                <CustomTextInput
+                <Field
+                  component={CustomTextInput}
                   label="Password"
                   name="password"
                   icon="lock"
                   placeholder="* * * * * * * *"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("password")}
-                  value={values.password}
                   secureTextEntry={hidePassword}
                   isPassword={true}
                   hidePassword={hidePassword}

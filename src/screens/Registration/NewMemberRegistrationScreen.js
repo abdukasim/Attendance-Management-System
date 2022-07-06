@@ -9,19 +9,38 @@ import {
   MsgBox,
   StyledInputLabel,
 } from "../../components/styles";
-import { Formik } from "formik";
+import { Field, Formik } from "formik";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import CustomTextInput from "../../components/CustomTextInput";
-import { ActivityIndicator, StyleSheet } from "react-native";
+import { ActivityIndicator, StyleSheet, Text } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import url from "../../helpers/url";
+import * as yup from "yup";
 
 const { darkLight, primary, secondary, tertiary } = Colors;
+
+const NewMemberRegistrationValidationSchema = yup.object().shape({
+  name: yup
+    .string()
+    .matches(/(\w.+\s).+/, "Enter at least 2 names")
+    .required("Full name is required"),
+  phone: yup
+    .string()
+    .matches(/(09)(\d){8}\b/, "Enter a valid phone number")
+    .required("Phone number is required"),
+  address: yup.string().required("Address is required"),
+  sex: yup.string().matches(/Male/i).required("Sex is required"),
+});
 
 const NewMemberRegistrationScreen = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
 
+  const [selected, setSelected] = useState();
+  const data = [
+    { label: "Male", value: "male" },
+    { label: "Female", value: "female" },
+  ];
   const handleMessage = (message, type = "FAILED") => {
     setMessage(message);
     setMessageType(type);
@@ -55,78 +74,72 @@ const NewMemberRegistrationScreen = () => {
               address: "",
               sex: "",
             }}
+            validationSchema={NewMemberRegistrationValidationSchema}
             onSubmit={(values, { setSubmitting }) => {
-              // add to waiting list
-              if (
-                values.name == "" ||
-                values.phone == "" ||
-                values.sex == "" ||
-                values.address == ""
-              ) {
-                handleMessage("Please fill all the fields");
-                setSubmitting(false);
-              } else {
-                handleRegistration(values, setSubmitting);
-                values.name = null;
-                values.phone = null;
-                values.address = null;
-                values.sex = null;
-              }
+              handleRegistration(values, setSubmitting);
+              Object.keys(values).forEach((key) => {
+                values[key] = "";
+              });
             }}
           >
             {({
-              handleChange,
+              handleBlur,
               handleSubmit,
               isSubmitting,
               values,
               setFieldValue,
+              setFieldTouched,
+              errors,
+              touched,
             }) => (
               <StyledFormArea>
-                <CustomTextInput
+                <Field
+                  component={CustomTextInput}
                   label="Full Name"
                   name="name"
                   icon="user"
-                  placeholder="Name"
+                  placeholder="name"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("name")}
-                  // onBlur={handleBlur}
-                  value={values.name}
                 />
-                <CustomTextInput
+                <Field
+                  component={CustomTextInput}
                   label="Phone Number"
                   name="phone"
                   icon="phone"
                   placeholder="phone number"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("phone")}
-                  // onBlur={handleBlur}
-                  value={values.phone}
                   keyboardType="numeric"
                 />
-                <CustomTextInput
+                <Field
+                  component={CustomTextInput}
                   label="Address"
                   name="address"
                   icon="home"
                   placeholder="address"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("address")}
-                  // onBlur={handleBlur}
-                  value={values.address}
                 />
                 <StyledInputLabel>Sex</StyledInputLabel>
                 <Picker
                   selectedValue={values.sex}
                   onValueChange={(itemValue, itemIndex) => {
+                    setFieldTouched("sex", true);
                     if (itemValue !== "default") {
                       setFieldValue("sex", itemValue);
                     }
                   }}
-                  style={styles.pickerStyle}
+                  style={[
+                    styles.pickerStyle,
+                    errors.sex && touched.sex && styles.errorInput,
+                  ]}
+                  onBlur={handleBlur("sex")}
                 >
                   <Picker.Item label="Please select gender" value="default" />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>
+                {errors.sex && touched.sex && (
+                  <Text style={styles.errorText}>{errors.sex}</Text>
+                )}
 
                 <MsgBox type={messageType}> {message} </MsgBox>
                 {!isSubmitting && (
@@ -161,6 +174,15 @@ const styles = StyleSheet.create({
     marginVertical: 3,
     marginBottom: 10,
     color: tertiary,
+    borderWidth: 0,
+  },
+  errorText: {
+    fontSize: 10,
+    color: "red",
+  },
+  errorInput: {
+    borderColor: "red",
+    borderWidth: 1,
   },
 });
 
