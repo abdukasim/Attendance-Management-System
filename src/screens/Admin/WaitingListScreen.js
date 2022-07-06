@@ -6,7 +6,6 @@ import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import WaitingListModal from "../../components/WaitingListModal";
 import { useFocusEffect } from "@react-navigation/native";
 import { View } from "react-native";
-import axios from "axios";
 
 export default function WaitingListScreen({ waitingListFunc }) {
   const [inWaitingList, setInWaitingList] = useState([]);
@@ -20,9 +19,7 @@ export default function WaitingListScreen({ waitingListFunc }) {
 
   async function fetchWaitingList() {
     try {
-      const res = await axios.get(
-        "https://muntaha.herokuapp.com/api/attendance/registration/new"
-      );
+      const res = await url.get("/api/attendance/registration/new");
       console.log(res.data.list);
       setInWaitingList(res.data.list);
     } catch (err) {
