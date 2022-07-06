@@ -28,14 +28,23 @@ const LoginScreen = ({ navigation }) => {
   // const userRef = React.useRef();
 
   const [hidePassword, setHidePassword] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
+  const handleMessage = (message, type = "ERROR") => {
+    setMessage(message);
+    setMessageType(type);
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 2000);
+  };
   // useEffect(() => {
   //   userRef.current.focus();
   // }, [userRef.current]);
 
   const handleLogin = (credentials, setSubmitting) => {
-    setErrorMsg(null);
+    handleMessage(null);
     url
       .post("/api/session", credentials)
       .then((res) => {
@@ -47,8 +56,8 @@ const LoginScreen = ({ navigation }) => {
       })
       .catch((err) => {
         if (!err.response) {
-          setErrorMsg(err.message);
-        } else setErrorMsg(err.response.data.description);
+          handleMessage(err.message);
+        } else handleMessage(err.response.data.description);
         setSubmitting(false);
       });
   };
@@ -95,7 +104,7 @@ const LoginScreen = ({ navigation }) => {
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
                 />
-                <MsgBox> {errorMsg} </MsgBox>
+                <MsgBox> {message} </MsgBox>
                 {!isSubmitting && (
                   <StyledButton onPress={handleSubmit}>
                     <ButtonText>Login</ButtonText>
