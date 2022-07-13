@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import CustomList from "../../components/CustomList";
 import { Overlay } from "react-native-elements";
 import url from "../../helpers/url";
 import AttendanceListModal from "../../components/AttendanceListModal";
 import { useFocusEffect } from "@react-navigation/native";
-import {
-  Button,
-  ButtonText,
-  MsgBox,
-  StyledButton,
-} from "../../components/styles";
+import { ButtonText, MsgBox, StyledButton } from "../../components/styles";
+import Stats from "../../components/Stats";
+import axios from "axios";
 
 export default function AttendanceScreen() {
   const [inAttendanceList, setInAttendanceList] = useState([]);
@@ -25,23 +22,32 @@ export default function AttendanceScreen() {
     setVisible(!visible);
   };
 
-  async function fetchAttendanceList() {
-    try {
-      const res = await url.get("/api/attendance/client");
-      console.log("attendance", res.data.list);
-      setInAttendanceList(res.data.list);
-    } catch (err) {
-      console.log(err);
-      setHasError(err);
-    }
+  function fetchAttendanceList() {
+    url
+      .get("/api/attendance/client")
+      .then((res) => {
+        console.log(res);
+        setInAttendanceList(res.data.list);
+      })
+      .catch((err) => {
+        console.log(err.message);
+        setHasError(err);
+      });
+
+    // return source;
   }
 
   useEffect(() => {
     fetchAttendanceList();
+
+    // return () => {
+    //   console.log("unmounting");
+    //   source.cancel();
+    // };
   }, []);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       fetchAttendanceList();
     }, [])
   );
@@ -50,15 +56,26 @@ export default function AttendanceScreen() {
     setIsLoading(true);
     try {
       const res = url.post("/api/attendance/client/attendance/invoke");
-      console.log(res);
+      // console.log(res);
       setMsg("Successfully invoked next day attendance");
       setMsgType("SUCCESS");
       setIsLoading(false);
+      setTimeout(() => {
+        setMsg("");
+        setMsgType("");
+        setIsLoading(false);
+      }, 1000);
+      fetchAttendanceList();
     } catch (error) {
-      console.log(error);
+      console.log("next day: ", error.message);
       setMsg("Error invoking next day attendance");
       setMsgType("ERROR");
       setIsLoading(false);
+      setTimeout(() => {
+        setMsg("");
+        setMsgType("");
+        setIsLoading(false);
+      }, 1000);
     }
   };
 
@@ -75,7 +92,7 @@ export default function AttendanceScreen() {
         </StyledButton>
       )}
       <MsgBox type={msgType}>{msg}</MsgBox>
-
+      <Stats />
       <CustomList
         data={inAttendanceList}
         getUser={setAttendanceUser}

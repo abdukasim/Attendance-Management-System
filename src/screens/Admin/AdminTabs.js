@@ -14,7 +14,31 @@ const { brand, tertiary } = Colors;
 
 const Tab = createBottomTabNavigator();
 
-export default function AdminTabs() {
+export default function AdminTabs({ navigation }) {
+  const Logout = () => {
+    return (
+      <Pressable
+        onPress={() => {
+          navigation.navigate("Login");
+        }}
+      >
+        <View
+          style={{
+            marginRight: 10,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ fontSize: 12, color: brand, marginRight: 5 }}>
+            Logout
+          </Text>
+          <FontAwesome name="sign-out" size={20} color={brand} />
+        </View>
+      </Pressable>
+    );
+  };
+
   return (
     <NavigationContainer independent={true}>
       <Tab.Navigator
@@ -40,6 +64,7 @@ export default function AdminTabs() {
           },
           tabBarActiveTintColor: brand,
           tabBarInactiveTintColor: tertiary,
+          headerRight: () => <Logout />,
         })}
       >
         <Tab.Screen name="Attendance" component={AttendanceScreen} />

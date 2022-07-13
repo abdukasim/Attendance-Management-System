@@ -24,7 +24,7 @@ export default function OrderListModal({
       fetchOrderList();
       toggleOverlay();
     } catch (err) {
-      console.log(err.response);
+      console.log("error", err.response);
     }
   };
 

@@ -9,66 +9,114 @@ import {
   MsgBox,
   StyledInputLabel,
 } from "../../components/styles";
-import { FieldArray, Formik } from "formik";
+import { FieldArray, Field, Formik } from "formik";
 import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import CustomTextInput from "../../components/CustomTextInput";
-import { ActivityIndicator, StyleSheet } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { View } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as ImagePicker from "expo-image-picker";
 import RadioForm from "react-native-simple-radio-button";
 import url from "../../helpers/url";
+import * as yup from "yup";
 
-// import { View, Text } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 
 const { darkLight, primary, secondary, tertiary, brand } = Colors;
+
+const OldMemberRegistrationValidationSchema = yup.object().shape({
+  name: yup
+    .string()
+    .matches(/(\w.+\s).+/, "Enter at least 2 names")
+    .required("Full name is required"),
+  age: yup.number().required("Age is required"),
+  sex: yup.string().required("Sex is required"),
+  address: yup.string().required("Address is required"),
+  phone: yup
+    .string()
+    .matches(/(09)(\d){8}\b/, "Enter a valid phone number")
+    .required("Phone number is required"),
+  shelterStatus: yup.string().required("Shelter Status is required"),
+  jobStatus: yup.string().required("Job Status is required"),
+  maritalStatus: yup.string().required("Marital Status is required"),
+});
 
 const OldMemberRegistrationScreen = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [marital, setMaritalStatus] = useState();
-  const [health, setHealthStatus] = useState();
   const [show, setShow] = useState(false);
-  const [date, setDate] = useState(new Date(2000, 0, 1));
   const [radioButton, setRadioButton] = useState();
+  const [image, setImage] = useState(null);
+  const [shelter, setShelter] = useState("");
 
   const radio_props = [
     { label: "Yes", value: 0 },
     { label: "No", value: 1 },
   ];
 
-  // Actual date of birth
-  const [dob, setDob] = useState();
-
-  const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShow(false);
-    setDate(currentDate);
-    setDob(currentDate);
-  };
-
-  const showDatePicker = () => {
-    setShow(true);
-  };
-
   const handleMessage = (message, type = "FAILED") => {
     setMessage(message);
     setMessageType(type);
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 2000);
+  };
+
+  const getFormData = (object) => {
+    const formData = new FormData();
+    formData.append("image", {
+      name: new Date() + "_profile.jpg",
+      uri: object.image,
+      type: "image/jpg",
+    });
+    Object.keys(object).forEach((key) => {
+      if (key !== "image") {
+        formData.append(key, object[key]);
+      }
+    });
+    console.log(formData);
+    return formData;
   };
 
   const handleRegistration = (credentials, setSubmitting) => {
     handleMessage(null);
-    url
-      .post("/api/attendance/client/old-timer", credentials)
-      .then((res) => {
-        if (res.status === 200) {
-          handleMessage("Successfully registered", "SUCCESS");
-          setSubmitting(false);
-        }
+    //
+    const formData = getFormData(credentials);
+    console.log(formData);
+    //
+    fetch("https://muntaha.herokuapp.com/api/attendance/client/old-timer", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setSubmitting(false);
+        handleMessage("Successfully Registered", "SUCCESS");
       })
       .catch((err) => {
-        console.log("error: ", err.response.data.description);
+        console.log("catch:", err);
         setSubmitting(false);
+        if (
+          err.message === "Network Error" ||
+          err.message === "Network request failed"
+        ) {
+          handleMessage("Successfully added to visited list", "SUCCESS");
+        } else {
+          handleMessage(err.message, "ERROR");
+        }
       });
   };
 
@@ -89,125 +137,224 @@ const OldMemberRegistrationScreen = () => {
           <Formik
             // enableReinitialize
             initialValues={{
+              image: "",
               name: "",
-              birthday: "",
+              age: "",
               sex: "",
+              address: "",
+              phone: "",
+              shelterStatus: "",
+              rent: "",
+              jobStatus: "",
               maritalStatus: "",
               spouse: "",
               children: [{ name: "", age: "", schooling: "" }],
-              jobStatus: "",
-              rent: "",
-              address: "",
-              phone: "",
               health: "",
-              skills: "",
             }}
+            validationSchema={OldMemberRegistrationValidationSchema}
             onSubmit={(values, { setSubmitting }) => {
-              if (
-                values.name == "" ||
-                values.phone == "" ||
-                values.sex == "" ||
-                values.address == ""
-              ) {
-                handleMessage("Please fill all the fields");
-                setSubmitting(false);
-              } else {
-                console.log(values);
-                handleRegistration(values, setSubmitting);
-                values.name = null;
-                values.birthday = null;
-                values.sex = null;
-                values.maritalStatus = null;
-                values.spouse = null;
-                values.children = null;
-                values.jobStatus = null;
-                values.rent = null;
-                values.address = null;
-                values.phone = null;
-                values.health = null;
-                values.skills = null;
-              }
+              console.log(values);
+              handleRegistration(values, setSubmitting);
+              Object.keys(values).forEach((key) => {
+                values[key] = "";
+              });
             }}
           >
             {({
-              handleChange,
+              handleBlur,
               handleSubmit,
               isSubmitting,
               values,
               setFieldValue,
+              setFieldTouched,
+              setFieldError,
+              errors,
+              touched,
             }) => (
               <StyledFormArea>
-                <CustomTextInput
+                <View
+                  style={[
+                    imageUploaderStyles.container,
+                    errors.image && touched.image && styles.errorInput,
+                  ]}
+                >
+                  {image && (
+                    <Image
+                      source={{ uri: image }}
+                      style={{ width: 150, height: 150 }}
+                    />
+                  )}
+                  <View style={imageUploaderStyles.uploadBtnContainer}>
+                    <TouchableOpacity
+                      onPress={async () => {
+                        setFieldTouched("image", true);
+                        let _image = await ImagePicker.launchImageLibraryAsync({
+                          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                          allowsEditing: true,
+                          aspect: [4, 4],
+                          quality: 0.5,
+                        });
+
+                        console.log(JSON.stringify(_image));
+                        _image.cancelled &&
+                          setFieldError("image", "Image is Required");
+                        if (!_image.cancelled) {
+                          setImage(_image.uri);
+                          setFieldValue("image", _image.uri);
+                        }
+                      }}
+                      style={imageUploaderStyles.uploadBtn}
+                    >
+                      <Text>{image ? "Edit" : "Upload"} Image</Text>
+                      <FontAwesome name="camera" size={20} color={brand} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                {errors.image && touched.image && (
+                  <Text style={styles.errorText}>{errors.image}</Text>
+                )}
+                <Field
+                  component={CustomTextInput}
                   label="Full Name"
                   name="name"
                   icon="user"
-                  placeholder="Name"
+                  placeholder="name"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("name")}
-                  // onBlur={handleBlur}
-                  value={values.name}
                 />
 
-                <CustomTextInput
-                  label="Birthday"
-                  name="birthday"
+                <Field
+                  component={CustomTextInput}
+                  label="Age"
+                  name="age"
                   icon="calendar"
-                  placeholder="birthday"
+                  placeholder="age"
                   placeholderTextColor={darkLight}
-                  onChangeText={handleChange("birthday")}
-                  // onBlur={handleBlur}
-                  value={dob ? dob.toDateString() : ""}
-                  isDate={true}
-                  editable={false}
-                  showDatePicker={showDatePicker}
+                  keyboardType="numeric"
                 />
 
                 <StyledInputLabel>Sex</StyledInputLabel>
                 <Picker
                   selectedValue={values.sex}
                   onValueChange={(itemValue, itemIndex) => {
-                    // setSelectedSex(itemValue);
-                    setFieldValue("sex", itemValue);
-                    console.log(itemValue);
+                    setFieldTouched("sex", true);
+                    if (itemValue !== "default") {
+                      setFieldValue("sex", itemValue);
+                    }
                   }}
-                  style={styles.pickerStyle}
+                  style={[
+                    styles.pickerStyle,
+                    errors.sex && touched.sex && styles.errorInput,
+                  ]}
+                  onBlur={handleBlur("sex")}
                 >
-                  <Picker.Item label="--Select Gender--" enabled={false} />
+                  <Picker.Item label="Please select gender" value="default" />
                   <Picker.Item label="Male" value="Male" />
                   <Picker.Item label="Female" value="Female" />
                 </Picker>
+                {errors.sex && touched.sex && (
+                  <Text style={styles.errorText}>{errors.sex}</Text>
+                )}
+
+                <Field
+                  component={CustomTextInput}
+                  label="Address"
+                  name="address"
+                  icon="home"
+                  placeholder="address"
+                  placeholderTextColor={darkLight}
+                />
+
+                <Field
+                  component={CustomTextInput}
+                  label="Phone Number"
+                  name="phone"
+                  icon="phone"
+                  placeholder="phone number"
+                  placeholderTextColor={darkLight}
+                  keyboardType="numeric"
+                />
+
+                <StyledInputLabel>Shelter Status</StyledInputLabel>
+                <Picker
+                  selectedValue={values.shelterStatus}
+                  onValueChange={(itemValue, itemIndex) => {
+                    setFieldTouched("shelterStatus", true);
+                    if (itemValue !== "default") {
+                      setFieldValue("shelterStatus", itemValue);
+                      setShelter(itemValue);
+                    }
+                  }}
+                  style={[
+                    styles.pickerStyle,
+                    errors.shelterStatus &&
+                      touched.shelterStatus &&
+                      styles.errorInput,
+                  ]}
+                  onBlur={handleBlur("shelterStatus")}
+                >
+                  <Picker.Item
+                    label="Please select shelter status"
+                    value="default"
+                  />
+                  <Picker.Item label="Rent" value="rent" />
+                  <Picker.Item label="Private" value="private" />
+                  <Picker.Item label="Dependent" value="dependent" />
+                  <Picker.Item label="Homeless" value="homeless" />
+                </Picker>
+                {errors.shelterStatus && touched.shelterStatus && (
+                  <Text style={styles.errorText}>{errors.shelterStatus}</Text>
+                )}
+
+                {shelter === "rent" && (
+                  <Field
+                    component={CustomTextInput}
+                    label="Rent Amount"
+                    name="rent"
+                    icon="money"
+                    placeholder="rent amount"
+                    placeholderTextColor={darkLight}
+                    keyboardType="numeric"
+                  />
+                )}
+
+                <Field
+                  component={CustomTextInput}
+                  label="Job"
+                  name="jobStatus"
+                  icon="briefcase"
+                  placeholder="jobStatus"
+                  placeholderTextColor={darkLight}
+                />
 
                 <StyledInputLabel>Marital Status</StyledInputLabel>
                 <Picker
-                  prompt={"Select Marital"}
                   selectedValue={values.maritalStatus}
                   onValueChange={(itemValue, itemIndex) => {
-                    // setSelectedSex(itemValue);
-                    setMaritalStatus(itemValue);
-                    console.log(marital);
-                    setFieldValue("maritalStatus", itemValue);
-                    // console.log(itemValue);
+                    setFieldTouched("maritalStatus", true);
+                    if (itemValue !== "default") {
+                      setMaritalStatus(itemValue);
+                      setFieldValue("maritalStatus", itemValue);
+                    }
                   }}
-                  style={styles.pickerStyle}
+                  style={[
+                    styles.pickerStyle,
+                    errors.maritalStatus &&
+                      touched.maritalStatus &&
+                      styles.errorInput,
+                  ]}
+                  onBlur={handleBlur("maritalStatus")}
                 >
-                  <Picker.Item label="" value="" />
+                  <Picker.Item
+                    label="Please select marital status"
+                    value="default"
+                  />
                   <Picker.Item label="Divorced" value="Divorced" />
                   <Picker.Item label="Married" value="Married" />
                   <Picker.Item label="Widowed" value="Widowed" />
                   <Picker.Item label="Abandoned" value="Abandoned" />
                 </Picker>
-
-                {marital === "Married" && (
-                  <CustomTextInput
-                    label="Spouse"
-                    name="spouse"
-                    icon="male"
-                    placeholder="spouse"
-                    placeholderTextColor={darkLight}
-                    onChangeText={handleChange("spouse")}
-                    // onBlur={handleBlur}
-                    value={values.spouse}
-                  />
+                {errors.maritalStatus && touched.maritalStatus && (
+                  <Text style={styles.errorText}>{errors.maritalStatus}</Text>
                 )}
 
                 <StyledInputLabel>Children</StyledInputLabel>
@@ -215,7 +362,6 @@ const OldMemberRegistrationScreen = () => {
                   radio_props={radio_props}
                   initial={-1}
                   formHorizontal={true}
-                  // labelHorizontal={true}
                   buttonColor={brand}
                   selectedButtonColor={brand}
                   animation={true}
@@ -229,56 +375,63 @@ const OldMemberRegistrationScreen = () => {
                   <FieldArray name="children">
                     {({ insert, remove, push }) => (
                       <View>
-                        {values.children.length > 0 &&
+                        {values.children?.length > 0 &&
                           values.children.map((child, index) => (
                             <View key={index}>
-                              <CustomTextInput
+                              <Field
+                                component={CustomTextInput}
                                 label="Child Name"
                                 name={`children[${index}].name`}
                                 icon="child"
-                                placeholder="children"
+                                placeholder="name"
                                 placeholderTextColor={darkLight}
-                                onChangeText={handleChange(
-                                  `children[${index}].name`
-                                )}
-                                value={child.name}
-                                // onBlur={handleBlur}
                               />
-                              <CustomTextInput
+                              <Field
+                                component={CustomTextInput}
                                 label="Child Age"
                                 name={`children[${index}].age`}
                                 icon="child"
-                                placeholder="children"
+                                placeholder="age"
                                 placeholderTextColor={darkLight}
-                                onChangeText={handleChange(
-                                  `children[${index}].age`
-                                )}
-                                value={child.age}
-                                // onBlur={handleBlur}
+                                keyboardType="numeric"
                               />
-                              <CustomTextInput
+                              <Field
+                                component={CustomTextInput}
                                 label="Child Schooling"
                                 name={`children[${index}].schooling`}
                                 icon="child"
-                                placeholder="children"
+                                placeholder="schooling"
                                 placeholderTextColor={darkLight}
-                                onChangeText={handleChange(
-                                  `children[${index}].schooling`
-                                )}
-                                value={child.schooling}
-                                // onBlur={handleBlur}
                               />
                               <View style={styles.childrenButton}>
-                                <StyledButton onPress={() => remove(index)}>
-                                  <ButtonText>Remove</ButtonText>
-                                </StyledButton>
-                                <StyledButton
+                                <TouchableOpacity
+                                  onPress={() => remove(index)}
+                                  style={{
+                                    ...styles.buttonStyle,
+                                    backgroundColor: "red",
+                                  }}
+                                >
+                                  <Text
+                                    style={{ color: "white", fontSize: 20 }}
+                                  >
+                                    -
+                                  </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
                                   onPress={() =>
                                     push({ name: "", age: "", schooling: "" })
                                   }
+                                  style={{
+                                    ...styles.buttonStyle,
+                                    backgroundColor: "green",
+                                  }}
                                 >
-                                  <ButtonText>Add Child</ButtonText>
-                                </StyledButton>
+                                  <Text
+                                    style={{ color: "white", fontSize: 20 }}
+                                  >
+                                    +
+                                  </Text>
+                                </TouchableOpacity>
                               </View>
                             </View>
                           ))}
@@ -286,79 +439,6 @@ const OldMemberRegistrationScreen = () => {
                     )}
                   </FieldArray>
                 )}
-
-                <CustomTextInput
-                  label="Job"
-                  name="jobStatus"
-                  icon="briefcase"
-                  placeholder="jobStatus"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("jobStatus")}
-                  // onBlur={handleBlur}
-                  value={values.jobStatus}
-                />
-
-                <CustomTextInput
-                  label="Rent"
-                  name="rent"
-                  icon="money"
-                  placeholder="rent"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("rent")}
-                  // onBlur={handleBlur}
-                  value={values.rent}
-                  keyboardType="numeric"
-                />
-                <CustomTextInput
-                  label="Address"
-                  name="address"
-                  icon="home"
-                  placeholder="address"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("address")}
-                  // onBlur={handleBlur}
-                  value={values.address}
-                />
-
-                <CustomTextInput
-                  label="Phone Number"
-                  name="phone"
-                  icon="phone"
-                  placeholder="phone number"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("phone")}
-                  // onBlur={handleBlur}
-                  value={values.phone}
-                  keyboardType="numeric"
-                />
-
-                <StyledInputLabel>Health Status</StyledInputLabel>
-                <Picker
-                  prompt={"Health Status"}
-                  selectedValue={values.health}
-                  onValueChange={(itemValue, itemIndex) => {
-                    // setSelectedSex(itemValue);
-                    setHealthStatus(itemValue);
-                    // console.log(marital);
-                    setFieldValue("health", itemValue);
-                    // console.log(itemValue);
-                  }}
-                  style={styles.pickerStyle}
-                >
-                  <Picker.Item label="Healthy" value="Healthy" />
-                  <Picker.Item label="On Medication" value="Medication" />
-                </Picker>
-
-                <CustomTextInput
-                  label="Skills"
-                  name="skills"
-                  icon="tasks"
-                  placeholder="skills"
-                  placeholderTextColor={darkLight}
-                  onChangeText={handleChange("skills")}
-                  // onBlur={handleBlur}
-                  value={values.skills}
-                />
 
                 <MsgBox type={messageType}> {message} </MsgBox>
                 {!isSubmitting && (
@@ -398,6 +478,51 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",
+  },
+  buttonStyle: {
+    padding: 10,
+    width: 50,
+    height: 50,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 999,
+    marginRight: 20,
+  },
+  errorText: {
+    fontSize: 10,
+    color: "red",
+  },
+  errorInput: {
+    borderColor: "red",
+    borderWidth: 1,
+  },
+});
+const imageUploaderStyles = StyleSheet.create({
+  container: {
+    elevation: 2,
+    height: 150,
+    width: 150,
+    backgroundColor: "#efefef",
+    position: "relative",
+    borderRadius: 999,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  uploadBtnContainer: {
+    opacity: 0.7,
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    backgroundColor: "lightgrey",
+    width: "100%",
+    height: "40%",
+  },
+  uploadBtn: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
   },
 });
 

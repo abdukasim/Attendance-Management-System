@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import {
   Colors,
@@ -19,32 +19,31 @@ const CustomTextInput = forwardRef(
       isPassword,
       hidePassword,
       setHidePassword,
-      isSex,
-      showPicker,
-      isDate,
-      showDatePicker,
+      field: { name, onBlur, onChange, value },
+      form: { errors, touched, setFieldTouched },
       ...props
     },
     ref
   ) => {
+    const hasError = errors[name] && touched[name];
     return (
       <View>
         <LeftIcon>
           <FontAwesome name={icon} size={30} color={brand} />
         </LeftIcon>
         <StyledInputLabel>{label}</StyledInputLabel>
-        {/* {!isSex && <StyledTextInput {...props} />} */}
-        {isSex && (
-          <TouchableOpacity onPress={showPicker}>
-            <StyledTextInput {...props} />
-          </TouchableOpacity>
-        )}
-        {!isDate && <StyledTextInput {...props} ref={ref} />}
-        {isDate && (
-          <TouchableOpacity onPress={showDatePicker}>
-            <StyledTextInput {...props} />
-          </TouchableOpacity>
-        )}
+        <StyledTextInput
+          value={value}
+          onChangeText={(text) => onChange(name)(text)}
+          onBlur={() => {
+            setFieldTouched(name);
+            onBlur(name);
+          }}
+          {...props}
+          style={hasError && styles.errorInput}
+          ref={ref}
+        />
+        {hasError && <Text style={styles.errorText}>{errors[name]}</Text>}
         {isPassword && (
           <RightIcon onPress={() => setHidePassword(!hidePassword)}>
             <FontAwesome
@@ -59,4 +58,14 @@ const CustomTextInput = forwardRef(
   }
 );
 
+const styles = StyleSheet.create({
+  errorText: {
+    fontSize: 10,
+    color: "red",
+  },
+  errorInput: {
+    borderColor: "red",
+    borderWidth: 1,
+  },
+});
 export default CustomTextInput;
