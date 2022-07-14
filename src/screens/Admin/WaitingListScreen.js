@@ -6,46 +6,64 @@ import KeyboardAvoidingWrapper from "../../components/KeyboardAvoidingWrapper";
 import WaitingListModal from "../../components/WaitingListModal";
 import { useFocusEffect } from "@react-navigation/native";
 import { View } from "react-native";
+import { ActivityIndicator } from "react-native";
+import { Colors } from "../../components/styles";
+import { StyleSheet } from "react-native";
+
+const { brand } = Colors;
 
 export default function WaitingListScreen({ waitingListFunc }) {
   const [inWaitingList, setInWaitingList] = useState([]);
   const [hasError, setHasError] = useState(false);
   const [waitingUser, setWaitingUser] = useState({});
   const [visible, setVisible] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   const toggleOverlay = () => {
     setVisible(!visible);
   };
 
-  async function fetchWaitingList() {
+  async function fetchWaitingList(useFocus) {
+    !useFocus && setFetching(true);
     try {
       const res = await url.get("/api/attendance/registration/new");
       console.log(res.data.list);
       setInWaitingList(res.data.list);
+      !useFocus && setFetching(false);
     } catch (err) {
       console.log(err);
       setHasError(err);
+      !useFocus && setFetching(false);
     }
   }
 
   useEffect(() => {
     fetchWaitingList();
+    console.log("useEffect");
   }, []);
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchWaitingList();
+      let useFocus = true;
+      fetchWaitingList(useFocus);
+      console.log("useFocusEffect");
     }, [])
   );
 
   return (
     <View>
-      <CustomList
-        data={inWaitingList}
-        getUser={setWaitingUser}
-        toggleOverlay={toggleOverlay}
-        fetchWaitingList={fetchWaitingList}
-      />
+      {fetching ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={brand} />
+        </View>
+      ) : (
+        <CustomList
+          data={inWaitingList}
+          getUser={setWaitingUser}
+          toggleOverlay={toggleOverlay}
+          fetchWaitingList={fetchWaitingList}
+        />
+      )}
       <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
         <KeyboardAvoidingWrapper>
           <WaitingListModal
@@ -59,3 +77,15 @@ export default function WaitingListScreen({ waitingListFunc }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  center: {
+    paddingTop: 32,
+    // display: "flexs",
+    // flex: 1,
+    // height: "90%",
+    // justifyContent: "center",
+    // alignItems: "center",
+    // backgroundColor: "red",
+  },
+});
