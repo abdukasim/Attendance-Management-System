@@ -26,6 +26,7 @@ export default function CustomList({
   const [masterDataSource, setMasterDataSource] = useState(data);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Fetch required data
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     if (fetchWaitingList) {
@@ -73,6 +74,7 @@ export default function CustomList({
     }
   };
 
+  // List item
   const renderItem = ({ item }) => (
     <ListItem
       bottomDivider
@@ -95,6 +97,7 @@ export default function CustomList({
       <ListItem.Chevron />
     </ListItem>
   );
+
   return (
     <SafeAreaView>
       {!fetchOrderList && (
@@ -135,12 +138,10 @@ const styles = StyleSheet.create({
     height: "90%",
     justifyContent: "center",
     alignItems: "center",
-    // backgroundColor: "red",
   },
   headingPrimary: {
     fontSize: 20,
     letterSpacing: 2,
-    // marginBottom: 20,
     color: "black",
   },
 });
