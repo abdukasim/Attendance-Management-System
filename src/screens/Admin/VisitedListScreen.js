@@ -34,17 +34,22 @@ export default function VisitedListScreen() {
   const [msgType, setMsgType] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [audio, setAudio] = useState();
+  const [fetching, setFetching] = useState(false);
 
   const toggleOverlay = () => {
     setVisible(!visible);
   };
-  const fetchVisitedList = async () => {
+
+  const fetchVisitedList = async (fromUseFocusEffect) => {
+    !fromUseFocusEffect && setFetching(true);
     try {
       const res = await url.get("/api/attendance/registration/visit");
       console.log(res.data.list);
       setInVisitedList(res.data.list);
+      !fromUseFocusEffect && setFetching(false);
     } catch (err) {
       console.log(err.message);
+      !fromUseFocusEffect && setFetching(false);
     }
   };
   useEffect(() => {
@@ -53,7 +58,8 @@ export default function VisitedListScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchVisitedList();
+      let fromUseFocusEffect = true;
+      fetchVisitedList(fromUseFocusEffect);
     }, [])
   );
 
@@ -135,13 +141,6 @@ export default function VisitedListScreen() {
                 console.log("Sound Loaded", audio);
                 console.log("Playing Sound");
                 await sound.playAsync();
-                // sound.setOnPlaybackStatusUpdate(async (status) => {
-                //   console.log("Status", status);
-                //   if (status.didJustFinish) {
-                //     console.log("Finished");
-                //     await sound.unloadAsync();
-                //   }
-                // });
               }}
               style={{ ...styles.buttonStyle, backgroundColor: brand }}
             >
@@ -174,12 +173,18 @@ export default function VisitedListScreen() {
 
   return (
     <View>
-      <CustomList
-        data={inVisitedList}
-        getUser={setVisitedUser}
-        toggleOverlay={toggleOverlay}
-        fetchVisitedList={fetchVisitedList}
-      />
+      {fetching ? (
+        <View style={{ paddingTop: 32 }}>
+          <ActivityIndicator size="large" color={brand} />
+        </View>
+      ) : (
+        <CustomList
+          data={inVisitedList}
+          getUser={setVisitedUser}
+          toggleOverlay={toggleOverlay}
+          fetchVisitedList={fetchVisitedList}
+        />
+      )}
       <Overlay
         isVisible={visible}
         onBackdropPress={() => {
