@@ -49,7 +49,7 @@ const LoginScreen = ({ navigation }) => {
       .post("/api/session", credentials)
       .then((res) => {
         if (res.status == 200) {
-          navigation.navigate(res.data.type);
+          navigation.replace(res.data.type);
           console.log("loginreponse:", res.data);
         }
         setSubmitting(false);
