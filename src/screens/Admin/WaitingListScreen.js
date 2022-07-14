@@ -51,7 +51,7 @@ export default function WaitingListScreen({ waitingListFunc }) {
   return (
     <View>
       {fetching ? (
-        <View style={styles.center}>
+        <View style={{ paddingTop: 32 }}>
           <ActivityIndicator size="large" color={brand} />
         </View>
       ) : (
@@ -75,15 +75,3 @@ export default function WaitingListScreen({ waitingListFunc }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  center: {
-    paddingTop: 32,
-    // display: "flexs",
-    // flex: 1,
-    // height: "90%",
-    // justifyContent: "center",
-    // alignItems: "center",
-    // backgroundColor: "red",
-  },
-});
