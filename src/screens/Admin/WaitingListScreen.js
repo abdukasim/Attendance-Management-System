@@ -39,14 +39,12 @@ export default function WaitingListScreen({ waitingListFunc }) {
 
   useEffect(() => {
     fetchWaitingList();
-    console.log("useEffect");
   }, []);
 
   useFocusEffect(
     React.useCallback(() => {
       let useFocus = true;
       fetchWaitingList(useFocus);
-      console.log("useFocusEffect");
     }, [])
   );
 
