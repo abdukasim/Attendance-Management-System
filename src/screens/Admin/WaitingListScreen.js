@@ -23,17 +23,17 @@ export default function WaitingListScreen({ waitingListFunc }) {
     setVisible(!visible);
   };
 
-  async function fetchWaitingList(useFocus) {
-    !useFocus && setFetching(true);
+  async function fetchWaitingList(fromUseFocusEffect) {
+    !fromUseFocusEffect && setFetching(true);
     try {
       const res = await url.get("/api/attendance/registration/new");
       console.log(res.data.list);
       setInWaitingList(res.data.list);
-      !useFocus && setFetching(false);
+      !fromUseFocusEffect && setFetching(false);
     } catch (err) {
       console.log(err);
       setHasError(err);
-      !useFocus && setFetching(false);
+      !fromUseFocusEffect && setFetching(false);
     }
   }
 
@@ -43,8 +43,8 @@ export default function WaitingListScreen({ waitingListFunc }) {
 
   useFocusEffect(
     React.useCallback(() => {
-      let useFocus = true;
-      fetchWaitingList(useFocus);
+      let fromUseFocusEffect = true;
+      fetchWaitingList(fromUseFocusEffect);
     }, [])
   );
 
