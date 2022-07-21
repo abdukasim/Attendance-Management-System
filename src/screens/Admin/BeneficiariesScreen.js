@@ -28,6 +28,7 @@ import {
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import axios from "axios";
+import { ActivityIndicator } from "react-native";
 
 const { brand } = Colors;
 
@@ -40,6 +41,8 @@ export default function AttendanceScreen() {
   const [msgType, setMsgType] = useState("");
   const [edit, setEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
+
   const toggleOverlay = () => {
     setVisible(!visible);
     setEdit(false);
@@ -116,16 +119,19 @@ export default function AttendanceScreen() {
     }
   };
 
-  async function fetchAttendanceList() {
+  async function fetchAttendanceList(fromUseFocusEffect) {
+    !fromUseFocusEffect && setFetching(true);
     try {
       const res = await url.get("/api/attendance/client", {
         params: { type: "full" },
       });
       console.log("attendance", res.data.list);
       setInAttendanceList(res.data.list);
+      !fromUseFocusEffect && setFetching(false);
     } catch (err) {
       console.log(err);
       setHasError(err);
+      !fromUseFocusEffect && setFetching(false);
     }
   }
 
@@ -175,10 +181,10 @@ export default function AttendanceScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchAttendanceList();
+      let fromUseFocusEffect = true;
+      fetchAttendanceList(fromUseFocusEffect);
     }, [])
   );
-
   const renderDetails = (details) => {
     let content = [];
     let ignore = [
@@ -278,12 +284,18 @@ export default function AttendanceScreen() {
 
   return (
     <View>
-      <CustomList
-        data={inAttendanceList}
-        getUser={setAttendanceUser}
-        toggleOverlay={toggleOverlay}
-        fetchAttendanceList={fetchAttendanceList}
-      />
+      {fetching ? (
+        <View style={{ paddingTop: 32 }}>
+          <ActivityIndicator size="large" color={brand} />
+        </View>
+      ) : (
+        <CustomList
+          data={inAttendanceList}
+          getUser={setAttendanceUser}
+          toggleOverlay={toggleOverlay}
+          fetchAttendanceList={fetchAttendanceList}
+        />
+      )}
 
       <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
         <StyledModal>
