@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   InnerContainer,
   PageLogo,
@@ -25,7 +25,7 @@ const LoginValidationSchema = yup.object().shape({
 });
 
 const LoginScreen = ({ navigation }) => {
-  // const userRef = React.useRef();
+  const passwordRef = useRef(null);
 
   const [hidePassword, setHidePassword] = useState(true);
   const [message, setMessage] = useState("");
@@ -39,9 +39,6 @@ const LoginScreen = ({ navigation }) => {
       setMessageType("");
     }, 2000);
   };
-  // useEffect(() => {
-  //   userRef.current.focus();
-  // }, [userRef.current]);
 
   const handleLogin = (credentials, setSubmitting) => {
     handleMessage(null);
@@ -77,23 +74,27 @@ const LoginScreen = ({ navigation }) => {
             validationSchema={LoginValidationSchema}
             onSubmit={(values, { setSubmitting }) => {
               handleLogin(values, setSubmitting);
-              values.username = null;
-              values.password = null;
             }}
           >
             {({ handleChange, handleSubmit, isSubmitting, values }) => (
               <StyledFormArea>
                 <Field
                   component={CustomTextInput}
-                  // ref={userRef}
                   label="Username"
                   name="username"
                   icon="user"
                   placeholder="username"
                   placeholderTextColor={darkLight}
+                  autoFocus={true}
+                  onSubmitEditing={() => {
+                    passwordRef.current.focus();
+                  }}
+                  blurOnSubmit={false}
                 />
                 <Field
+                  id="pass"
                   component={CustomTextInput}
+                  innerRef={(el) => (passwordRef.current = el)}
                   label="Password"
                   name="password"
                   icon="lock"
@@ -103,6 +104,7 @@ const LoginScreen = ({ navigation }) => {
                   isPassword={true}
                   hidePassword={hidePassword}
                   setHidePassword={setHidePassword}
+                  onSubmitEditing={() => handleSubmit()}
                 />
                 <MsgBox> {message} </MsgBox>
                 {!isSubmitting && (
