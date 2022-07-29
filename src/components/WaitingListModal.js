@@ -24,9 +24,7 @@ import CustomTextInput from "./CustomTextInput";
 import { Formik, FieldArray, Field } from "formik";
 import RadioForm from "react-native-simple-radio-button";
 import { Picker } from "@react-native-picker/picker";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
 import { Audio } from "expo-av";
 import * as yup from "yup";
 
@@ -72,13 +70,11 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
   }
 
   async function stopRecording() {
-    console.log("Stopping recording..");
     setRecording(undefined);
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
     console.log("Recording stopped and stored at", uri);
     setAudioUri(uri);
-    console.log(typeof audioUri);
     // FormikProps.setFieldValue("audio", uri);
   }
 
@@ -106,14 +102,6 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
     await audio.pauseAsync();
     setPlaying(false);
   }
-  // React.useEffect(() => {
-  //   return audio
-  //     ? () => {
-  //         console.log("Unloading Sound");
-  //         audio.unloadAsync();
-  //       }
-  //     : undefined;
-  // }, [audio]);
 
   const radio_props = [
     { label: "Yes", value: 0 },
@@ -379,7 +367,6 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
               radio_props={radio_props}
               initial={-1}
               formHorizontal={true}
-              // labelHorizontal={true}
               buttonColor={brand}
               selectedButtonColor={brand}
               animation={true}
