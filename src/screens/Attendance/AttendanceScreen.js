@@ -30,12 +30,10 @@ export default function AttendanceScreen() {
     url
       .get("/api/attendance/client")
       .then((res) => {
-        console.log(res);
         setInAttendanceList(res.data.list);
         setFetching(false);
       })
       .catch((err) => {
-        console.log(err.message);
         setHasError(err);
         setFetching(false);
       });
@@ -59,46 +57,8 @@ export default function AttendanceScreen() {
     }, [])
   );
 
-  const nextDay = () => {
-    setIsLoading(true);
-    try {
-      const res = url.post("/api/attendance/client/attendance/invoke");
-      // console.log(res);
-      setMsg("Successfully invoked next day attendance");
-      setMsgType("SUCCESS");
-      setIsLoading(false);
-      setTimeout(() => {
-        setMsg("");
-        setMsgType("");
-        setIsLoading(false);
-      }, 1000);
-      fetchAttendanceList();
-    } catch (error) {
-      console.log("next day: ", error.message);
-      setMsg("Error invoking next day attendance");
-      setMsgType("ERROR");
-      setIsLoading(false);
-      setTimeout(() => {
-        setMsg("");
-        setMsgType("");
-        setIsLoading(false);
-      }, 1000);
-    }
-  };
-
   return (
     <View>
-      {isLoading === false && (
-        <StyledButton onPress={() => nextDay()}>
-          <ButtonText>Next Day</ButtonText>
-        </StyledButton>
-      )}
-      {isLoading === true && (
-        <StyledButton onPress={() => nextDay()}>
-          <ActivityIndicator size="small" color="white" />
-        </StyledButton>
-      )}
-      <MsgBox type={msgType}>{msg}</MsgBox>
       <Stats />
 
       {fetching ? (

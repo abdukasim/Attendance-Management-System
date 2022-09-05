@@ -10,13 +10,17 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import io from "socket.io-client";
 import { LogBox } from "react-native";
 
+import { StatusBar } from "react-native";
+
+StatusBar.setBarStyle("dark-content", true);
+
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   const socketRef = React.useRef();
 
   React.useEffect(() => {
-    socketRef.current = io("http://muntaha.herokuapp.com/");
+    socketRef.current = io("http://137.184.58.100");
     socketRef.current.on("meal_count", (number) => {
       console.log("meal-count:", number);
     });

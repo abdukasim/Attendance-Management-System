@@ -1,5 +1,5 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "https://muntaha.herokuapp.com",
+  baseURL: "http://137.184.58.100",
 });

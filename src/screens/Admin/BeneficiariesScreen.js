@@ -52,6 +52,10 @@ export default function AttendanceScreen() {
     setEdit(!edit);
   };
 
+  useEffect(() => {
+    console.log("children", AttendanceUser.children);
+  }, [AttendanceUser.children?.length]);
+
   // html variable to display user data
   const html = `
     <html>
@@ -72,15 +76,22 @@ export default function AttendanceScreen() {
             padding: 2px 5px 0px 0;
             background-color: red;
           }
+          .child-list {
+            width: 100%
+            display: flex;
+            flex-direction: column;
+          }
         </style>
       </head>
       <body>
           <div>
-            <img src="http://muntaha.herokuapp.com/assets/imgs/MuntahaFoundationLogo.png" alt="Muntaha Foundation" width="100" height="150" />
+            <img src="http://137.184.58.100/assets/imgs/MuntahaFoundationLogo.png" alt="Muntaha Foundation" width="100" height="150" />
             <hr />
             <div className="content-wrapper">
               <h4>Image</h4>
-            <img src="http://muntaha.herokuapp.com${AttendanceUser.image}" alt="Muntaha Foundation" width="100" height="100" style={border-radius: 999} />
+            <img src="http://137.184.58.100${
+              AttendanceUser.image
+            }" alt="Muntaha Foundation" width="100" height="100" style={border-radius: 999} />
             </div>
             <div className="content-wrapper">
             <h4>Name</h4>
@@ -99,8 +110,25 @@ export default function AttendanceScreen() {
             <p className="content-text">${AttendanceUser.address}</p>
           </div>
           <div className="content-wrapper">
-          <h4>Children</h4>
-          <p className="content-text">${AttendanceUser.children?.length}</p> 
+          ${
+            AttendanceUser.children?.length
+              ? AttendanceUser.children.map(
+                  (child, index) =>
+                    `<div key={index} className="child-list">
+                    <h4>Child Name</h4>
+                  <p className="content-text">${child.name}</p>
+                  <h4>Child Age</h4>
+                  <p className="content-text">${child.age}</p>
+                  <h4>Child Schooling</h4>
+                  <p className="content-text">${child.schooling}</p>
+                </div>`
+                )
+              : `
+              <div>
+                <h4>Children</h4>
+                <p className="content-text">${AttendanceUser.children?.length}</p>
+              </div>`
+          } 
         </div>
           </div>
       </body>
@@ -125,21 +153,17 @@ export default function AttendanceScreen() {
       const res = await url.get("/api/attendance/client", {
         params: { type: "full" },
       });
-      console.log("attendance", res.data.list);
       setInAttendanceList(res.data.list);
       !fromUseFocusEffect && setFetching(false);
     } catch (err) {
-      console.log(err);
       setHasError(err);
       !fromUseFocusEffect && setFetching(false);
     }
   }
 
   const editProfile = async (user) => {
-    console.log("edit: ", user);
     try {
       const res = await url.put("/api/attendance/client", user);
-      console.log("edited: ", res.data);
       setMsgType("SUCCESS");
       setMessage("Edited Successfully!");
       setTimeout(() => {
@@ -155,12 +179,10 @@ export default function AttendanceScreen() {
   };
 
   const deleteProfile = async (user) => {
-    console.log("delete: ", user);
     try {
       const res = await url.delete("/api/attendance/client", {
         data: { id: user },
       });
-      console.log("deleted: ", res);
       setMsgType("SUCCESS");
       setMessage("Deleted Successfully!");
       setTimeout(() => {
@@ -255,7 +277,7 @@ export default function AttendanceScreen() {
           <React.Fragment key={key}>
             <StyledInputLabel>{key}</StyledInputLabel>
             <Image
-              source={{ uri: "http://muntaha.herokuapp.com" + details[key] }}
+              source={{ uri: "http://137.184.58.100" + details[key] }}
               style={{
                 width: 200,
                 height: 200,

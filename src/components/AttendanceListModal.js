@@ -31,7 +31,6 @@ export default function AttendanceListModal({
         id: dbId,
         present: status,
       });
-      console.log(res.data);
       setMsgType("SUCCESS");
       setMessage("Status Changed to Present Successfully!");
       setTimeout(() => {
@@ -52,7 +51,6 @@ export default function AttendanceListModal({
         id: dbId,
         permission: status,
       });
-      console.log(res.data);
       setMsgType("SUCCESS");
       setMessage("Status Changed to Permission Successfully!");
       setTimeout(() => {

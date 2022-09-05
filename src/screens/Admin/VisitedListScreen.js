@@ -21,6 +21,7 @@ import {
   Colors,
 } from "../../components/styles";
 import url from "../../helpers/url";
+import toggleOverlay from "../../helpers/toggleOverlay";
 import { FontAwesome } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 
@@ -36,15 +37,10 @@ export default function VisitedListScreen() {
   const [audio, setAudio] = useState();
   const [fetching, setFetching] = useState(false);
 
-  const toggleOverlay = () => {
-    setVisible(!visible);
-  };
-
   const fetchVisitedList = async (fromUseFocusEffect) => {
     !fromUseFocusEffect && setFetching(true);
     try {
       const res = await url.get("/api/attendance/registration/visit");
-      console.log(res.data.list);
       setInVisitedList(res.data.list);
       !fromUseFocusEffect && setFetching(false);
     } catch (err) {
@@ -69,7 +65,6 @@ export default function VisitedListScreen() {
       const res = await url.post("/api/attendance/registration/accept", {
         id: id,
       });
-      console.log(res.data);
       setMsgType("SUCCESS");
       setMessage("Added to Attendance Successfully!\n id: " + res.data);
       setIsLoading(false);
@@ -87,7 +82,6 @@ export default function VisitedListScreen() {
   };
 
   const renderDetails = (details) => {
-    console.log("details: ", details);
     let content = [];
     let ignore = ["id", "registrationDate", "visitDate"];
     for (const key in details) {
@@ -114,7 +108,7 @@ export default function VisitedListScreen() {
           <React.Fragment key={key}>
             <StyledInputLabel>{key}</StyledInputLabel>
             <Image
-              source={{ uri: "http://muntaha.herokuapp.com" + details[key] }}
+              source={{ uri: "http://137.184.58.100" + details[key] }}
               style={{
                 width: 150,
                 height: 150,
@@ -130,17 +124,20 @@ export default function VisitedListScreen() {
           0,
           <React.Fragment key={key}>
             <StyledInputLabel>{key}</StyledInputLabel>
-            {console.log(details[key][0])}
             <TouchableOpacity
               onPress={async () => {
-                console.log("Loading Sound");
-                const { sound } = await Audio.Sound.createAsync({
-                  uri: `https://muntaha.herokuapp.com${details[key][0]}`,
-                });
-                setAudio(sound);
-                console.log("Sound Loaded", audio);
-                console.log("Playing Sound");
-                await sound.playAsync();
+                // Loading Sound
+                try {
+                  const { sound } = await Audio.Sound.createAsync({
+                    uri: `http://137.184.58.100${details[key][0]}`,
+                  });
+                  setAudio(sound);
+                  // Sound Loaded
+                  // Playing Sound
+                  await sound.playAsync();
+                } catch (error) {
+                  console.log("error audio", error);
+                }
               }}
               style={{ ...styles.buttonStyle, backgroundColor: brand }}
             >

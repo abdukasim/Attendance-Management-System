@@ -13,14 +13,12 @@ export default function OrderListModal({
   toggleOverlay,
 }) {
   const RemoveFromList = async () => {
-    console.log(dbId);
     try {
       const res = await url.delete("/api/attendance/client/attendance/o-list", {
         data: {
           id: dbId,
         },
       });
-      console.log("order", res.data);
       fetchOrderList();
       toggleOverlay();
     } catch (err) {

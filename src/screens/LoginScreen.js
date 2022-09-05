@@ -47,7 +47,6 @@ const LoginScreen = ({ navigation }) => {
       .then((res) => {
         if (res.status == 200) {
           navigation.replace(res.data.type);
-          console.log("loginreponse:", res.data);
         }
         setSubmitting(false);
       })

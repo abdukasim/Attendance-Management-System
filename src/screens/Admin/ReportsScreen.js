@@ -68,7 +68,7 @@ export default function App() {
       </head>
       <body>
       <div style="display: flex; flex-direction: row; align-items: center">
-        <img src="http://muntaha.herokuapp.com/assets/imgs/MuntahaFoundationLogo.png" alt="Muntaha Foundation" width="100" height="150" />
+        <img src="http://137.184.58.100/assets/imgs/MuntahaFoundationLogo.png" alt="Muntaha Foundation" width="100" height="150" />
         <h1>Muntaha Foundation</h1>
       </div>
         <h2>Attendance Report</h2>
@@ -140,7 +140,6 @@ export default function App() {
       //   ? setReport(res.data.report.report)
       //   : setReport(res.data.report);
       setReport(res.data.report);
-      console.log("Report:", report);
     } catch (err) {
       console.log(err.message);
     }
@@ -149,7 +148,7 @@ export default function App() {
   const fetchAbsenteesReport = async () => {
     try {
       const res = await url.get("/api/attendance/report/absent");
-      console.log("report", res.data);
+      console.log("absentees report", res.data);
       setAbsenteeReport(res.data.list);
     } catch (err) {
       console.log(err.message);

@@ -27,11 +27,9 @@ export default function WaitingListScreen({ waitingListFunc }) {
     !fromUseFocusEffect && setFetching(true);
     try {
       const res = await url.get("/api/attendance/registration/new");
-      console.log(res.data.list);
       setInWaitingList(res.data.list);
       !fromUseFocusEffect && setFetching(false);
     } catch (err) {
-      console.log(err);
       setHasError(err);
       !fromUseFocusEffect && setFetching(false);
     }

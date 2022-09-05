@@ -83,7 +83,6 @@ const OldMemberRegistrationScreen = () => {
         formData.append(key, object[key]);
       }
     });
-    console.log(formData);
     return formData;
   };
 
@@ -91,9 +90,14 @@ const OldMemberRegistrationScreen = () => {
     handleMessage(null);
     //
     const formData = getFormData(credentials);
-    console.log(formData);
+    console.log(credentials);
+    if (credentials.image === "") {
+      setSubmitting(false);
+      handleMessage("Please select Image");
+      return;
+    }
     //
-    fetch("https://muntaha.herokuapp.com/api/attendance/client/old-timer", {
+    fetch("http://137.184.58.100/api/attendance/client/old-timer", {
       method: "POST",
       body: formData,
       headers: {
@@ -102,18 +106,16 @@ const OldMemberRegistrationScreen = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setSubmitting(false);
         handleMessage("Successfully Registered", "SUCCESS");
       })
       .catch((err) => {
-        console.log("catch:", err);
         setSubmitting(false);
         if (
           err.message === "Network Error" ||
           err.message === "Network request failed"
         ) {
-          handleMessage("Successfully added to visited list", "SUCCESS");
+          handleMessage("Successfully added to Attendance", "SUCCESS");
         } else {
           handleMessage(err.message, "ERROR");
         }
@@ -153,11 +155,10 @@ const OldMemberRegistrationScreen = () => {
             }}
             validationSchema={OldMemberRegistrationValidationSchema}
             onSubmit={(values, { setSubmitting }) => {
-              console.log(values);
               handleRegistration(values, setSubmitting);
-              Object.keys(values).forEach((key) => {
-                values[key] = "";
-              });
+              // Object.keys(values).forEach((key) => {
+              //   values[key] = "";
+              // });
             }}
           >
             {({
@@ -195,7 +196,6 @@ const OldMemberRegistrationScreen = () => {
                           quality: 0.5,
                         });
 
-                        console.log(JSON.stringify(_image));
                         _image.cancelled &&
                           setFieldError("image", "Image is Required");
                         if (!_image.cancelled) {

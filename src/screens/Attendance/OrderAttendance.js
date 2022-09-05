@@ -20,10 +20,8 @@ export default function OrderAttendance() {
   async function fetchOrderList() {
     try {
       const res = await url.get("/api/attendance/client/attendance/o-list");
-      console.log("order", res.data);
       setInOrderList(res.data.list);
     } catch (err) {
-      console.log(err);
       setHasError(err);
     }
   }

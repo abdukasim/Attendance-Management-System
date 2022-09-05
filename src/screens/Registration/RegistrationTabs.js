@@ -19,7 +19,7 @@ export default function RegistrationTabs({ navigation }) {
     return (
       <Pressable
         onPress={() => {
-          navigation.navigate("Login");
+          navigation.replace("Login");
         }}
       >
         <View

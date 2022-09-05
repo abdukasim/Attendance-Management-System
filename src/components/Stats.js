@@ -10,36 +10,14 @@ export default function Stats() {
   const socketRef = useRef();
 
   useEffect(() => {
-    socketRef.current = io("http://muntaha.herokuapp.com/");
+    socketRef.current = io("http://137.184.58.100");
     socketRef.current.on("present_count", (number) => {
-      console.log("present_count", number);
       setPresentAttendees(number);
     });
     socketRef.current.on("meal_count", (number) => {
-      console.log("meal-count", number);
       setServedMeals(number);
     });
     socketRef.current.on("client_count", (number) => {
-      console.log("client_count", number);
-      setBenefeciaries(number);
-    });
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    socketRef.current = io("http://muntaha.herokuapp.com/");
-    socketRef.current.on("present_count", (number) => {
-      console.log("present_count", number);
-      setPresentAttendees(number);
-    });
-    socketRef.current.on("meal_count", (number) => {
-      console.log("meal-count", number);
-      setServedMeals(number);
-    });
-    socketRef.current.on("client_count", (number) => {
-      console.log("client_count", number);
       setBenefeciaries(number);
     });
     return () => {

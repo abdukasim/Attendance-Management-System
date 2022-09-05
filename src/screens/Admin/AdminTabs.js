@@ -19,7 +19,7 @@ export default function AdminTabs({ navigation }) {
     return (
       <Pressable
         onPress={() => {
-          navigation.navigate("Login");
+          navigation.replace("Login");
         }}
       >
         <View

@@ -52,18 +52,18 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
 
   async function startRecording() {
     try {
-      console.log("Requesting permissions..");
+      // Requesting permissions
       await Audio.requestPermissionsAsync();
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       });
-      console.log("Starting recording..");
+      // Starting recording
       const { recording } = await Audio.Recording.createAsync(
         Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
       );
       setRecording(recording);
-      console.log("Recording started");
+      // Recording started
     } catch (err) {
       console.error("Failed to start recording", err);
     }
@@ -73,24 +73,22 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
     setRecording(undefined);
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
-    console.log("Recording stopped and stored at", uri);
+    //  Recording stopped and stored at", uri
     setAudioUri(uri);
-    // FormikProps.setFieldValue("audio", uri);
   }
 
   async function playSound() {
-    console.log("Loading Sound");
+    // Loading Sound
     const { sound } = await Audio.Sound.createAsync({ uri: audioUri });
     setSound(sound);
-    console.log("Souncd loaded", audio);
+    // Souncd loaded
 
-    console.log("Playing Sound");
+    // Playing Sound
     await sound.playAsync();
     sound.setOnPlaybackStatusUpdate(async (status) => {
-      console.log("Status", status);
       status.isPlaying && setPlaying(true);
       if (status.didJustFinish) {
-        console.log("Finished");
+        // Finished
         setPlaying(false);
         await sound.unloadAsync();
       }
@@ -98,7 +96,7 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
   }
 
   async function pauseSound() {
-    console.log("Pausing Sound");
+    // Pausing Sound
     await audio.pauseAsync();
     setPlaying(false);
   }
@@ -114,6 +112,7 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
     setTimeout(() => {
       setMessage("");
       setMessageType("");
+      toggleOverlay();
     }, 2000);
   };
 
@@ -134,14 +133,12 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
         formData.append(key, object[key]);
       }
     });
-    console.log(formData);
     return formData;
   }
   const handleWaitingListForm = (data, setSubmitting) => {
-    console.log("data: ", data);
     let bodyData = getFormData(data);
 
-    fetch("https://muntaha.herokuapp.com/api/attendance/registration/visit", {
+    fetch("http://137.184.58.100/api/attendance/registration/visit", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -150,7 +147,6 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
       body: bodyData,
     })
       .then((res) => {
-        console.log(res.status);
         handleMessage("Successfully added to visited list", "SUCCESS");
       })
       .catch((err) => {
@@ -160,7 +156,6 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
         ) {
           handleMessage("Successfully added to visited list", "SUCCESS");
         } else {
-          console.log(err);
           handleMessage(err.message, "ERROR");
         }
       })
@@ -169,9 +164,6 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
       });
   };
 
-  useEffect(() => {
-    console.log("image: ", image);
-  }, [image]);
   return (
     <StyledModal>
       <SubTitle>{name}</SubTitle>
@@ -222,7 +214,6 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
                       quality: 0.5,
                     });
 
-                    console.log(JSON.stringify(_image));
                     _image.cancelled &&
                       setFieldError("image", "Image is Required");
                     if (!_image.cancelled) {

@@ -16,7 +16,7 @@ export default function AttendanceOfficer({ navigation }) {
     return (
       <Pressable
         onPress={() => {
-          navigation.navigate("Login");
+          navigation.replace("Login");
         }}
       >
         <View
