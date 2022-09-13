@@ -20,7 +20,7 @@ const App = () => {
   const socketRef = React.useRef();
 
   React.useEffect(() => {
-    socketRef.current = io("http://137.184.58.100");
+    socketRef.current = io("http://137.184.58.100:8080");
     socketRef.current.on("meal_count", (number) => {
       console.log("meal-count:", number);
     });

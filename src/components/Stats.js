@@ -10,7 +10,7 @@ export default function Stats() {
   const socketRef = useRef();
 
   useEffect(() => {
-    socketRef.current = io("http://137.184.58.100");
+    socketRef.current = io("http://137.184.58.100:8080");
     socketRef.current.on("present_count", (number) => {
       setPresentAttendees(number);
     });

@@ -68,7 +68,7 @@ export default function App() {
       </head>
       <body>
       <div style="display: flex; flex-direction: row; align-items: center">
-        <img src="http://137.184.58.100/assets/imgs/MuntahaFoundationLogo.png" alt="Muntaha Foundation" width="100" height="150" />
+        <img src="http://137.184.58.100:8080/assets/imgs/MuntahaFoundationLogo.png" alt="Muntaha Foundation" width="100" height="150" />
         <h1>Muntaha Foundation</h1>
       </div>
         <h2>Attendance Report</h2>

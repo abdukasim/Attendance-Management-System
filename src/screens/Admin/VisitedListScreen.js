@@ -108,7 +108,7 @@ export default function VisitedListScreen() {
           <React.Fragment key={key}>
             <StyledInputLabel>{key}</StyledInputLabel>
             <Image
-              source={{ uri: "http://137.184.58.100" + details[key] }}
+              source={{ uri: "http://137.184.58.100:8080" + details[key] }}
               style={{
                 width: 150,
                 height: 150,
@@ -129,7 +129,7 @@ export default function VisitedListScreen() {
                 // Loading Sound
                 try {
                   const { sound } = await Audio.Sound.createAsync({
-                    uri: `http://137.184.58.100${details[key][0]}`,
+                    uri: `http://137.184.58.100:8080${details[key][0]}`,
                   });
                   setAudio(sound);
                   // Sound Loaded

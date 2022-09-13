@@ -97,7 +97,7 @@ const OldMemberRegistrationScreen = () => {
       return;
     }
     //
-    fetch("http://137.184.58.100/api/attendance/client/old-timer", {
+    fetch("http://137.184.58.100:8080/api/attendance/client/old-timer", {
       method: "POST",
       body: formData,
       headers: {

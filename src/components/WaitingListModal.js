@@ -138,7 +138,7 @@ const WaitingListModal = ({ name, id, fetchWaitingList, toggleOverlay }) => {
   const handleWaitingListForm = (data, setSubmitting) => {
     let bodyData = getFormData(data);
 
-    fetch("http://137.184.58.100/api/attendance/registration/visit", {
+    fetch("http://137.184.58.100:8080/api/attendance/registration/visit", {
       method: "POST",
       headers: {
         Accept: "application/json",

@@ -85,11 +85,11 @@ export default function AttendanceScreen() {
       </head>
       <body>
           <div>
-            <img src="http://137.184.58.100/assets/imgs/MuntahaFoundationLogo.png" alt="Muntaha Foundation" width="100" height="150" />
+            <img src="http://137.184.58.100:8080/assets/imgs/MuntahaFoundationLogo.png" alt="Muntaha Foundation" width="100" height="150" />
             <hr />
             <div className="content-wrapper">
               <h4>Image</h4>
-            <img src="http://137.184.58.100${
+            <img src="http://137.184.58.100:8080${
               AttendanceUser.image
             }" alt="Muntaha Foundation" width="100" height="100" style={border-radius: 999} />
             </div>
@@ -277,7 +277,7 @@ export default function AttendanceScreen() {
           <React.Fragment key={key}>
             <StyledInputLabel>{key}</StyledInputLabel>
             <Image
-              source={{ uri: "http://137.184.58.100" + details[key] }}
+              source={{ uri: "http://137.184.58.100:8080" + details[key] }}
               style={{
                 width: 200,
                 height: 200,
