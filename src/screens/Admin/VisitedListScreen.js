@@ -21,7 +21,6 @@ import {
   Colors,
 } from "../../components/styles";
 import url from "../../helpers/url";
-import toggleOverlay from "../../helpers/toggleOverlay";
 import { FontAwesome } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 
@@ -36,6 +35,10 @@ export default function VisitedListScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [audio, setAudio] = useState();
   const [fetching, setFetching] = useState(false);
+
+  function toggleOverlay() {
+    setVisible(!visible);
+  }
 
   const fetchVisitedList = async (fromUseFocusEffect) => {
     !fromUseFocusEffect && setFetching(true);

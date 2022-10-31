@@ -156,9 +156,9 @@ const OldMemberRegistrationScreen = () => {
             validationSchema={OldMemberRegistrationValidationSchema}
             onSubmit={(values, { setSubmitting }) => {
               handleRegistration(values, setSubmitting);
-              // Object.keys(values).forEach((key) => {
-              //   values[key] = "";
-              // });
+              Object.keys(values).forEach((key) => {
+                values[key] = "";
+              });
             }}
           >
             {({
